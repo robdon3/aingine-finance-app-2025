@@ -35,6 +35,10 @@ interface AuthContextType {
   exportUserData: (userId: string) => void
   importUserData: (data: any) => Promise<boolean>
   deleteUser: (userId: string) => void
+  clearUserData: (userId: string) => void
+  getUserData: (userId: string) => any
+  updateUserDataSection: (userId: string, section: string, data: any) => any
+  migrateLegacyData: (userId: string) => boolean
 }
 
 // Create Auth Context
@@ -45,7 +49,62 @@ const STORAGE_KEYS = {
   USERS: 'aegis_users',
   CURRENT_USER_ID: 'aegis_current_user_id',
   USER_DATA_PREFIX: 'aegis_user_data_',
-  APP_SETTINGS: 'aegis_app_settings'
+  APP_SETTINGS: 'aegis_app_settings',
+  LEGACY_DATA_MIGRATED: 'aegis_legacy_migrated'
+}
+
+// Default data templates for new users
+const DEFAULT_USER_DATA = {
+  financialHealth: {
+    income: 0,
+    expenses: 0,
+    savings: 0,
+    debt: 0,
+    lastUpdated: new Date().toISOString()
+  },
+  netWorth: {
+    assets: [],
+    liabilities: [],
+    lastUpdated: new Date().toISOString()
+  },
+  trueCost: {
+    calculations: [],
+    lastUpdated: new Date().toISOString()
+  },
+  timeValue: {
+    calculations: [],
+    lastUpdated: new Date().toISOString()
+  },
+  fuelCost: {
+    trips: [],
+    gasPrices: {},
+    lastUpdated: new Date().toISOString()
+  },
+  lifeContext: {
+    goals: [],
+    priorities: [],
+    lastUpdated: new Date().toISOString()
+  },
+  location: {
+    currentLocation: null,
+    savedLocations: [],
+    lastUpdated: new Date().toISOString()
+  },
+  aiInsights: {
+    insights: [],
+    preferences: {},
+    lastUpdated: new Date().toISOString()
+  },
+  dataSources: {
+    fredApiKey: '',
+    censusApiKey: '',
+    lastUpdated: new Date().toISOString()
+  },
+  taxData: {
+    policies: {},
+    calculations: [],
+    lastUpdated: new Date().toISOString()
+  }
 }
 
 // Encryption utilities (simple for now, can be enhanced)
@@ -99,6 +158,144 @@ const storage = {
   }
 }
 
+// Data management utilities
+const dataManager = {
+  // Initialize fresh data for new user
+  initializeUserData: (userId: string) => {
+    const freshData = JSON.parse(JSON.stringify(DEFAULT_USER_DATA))
+    storage.setUserData(userId, freshData)
+    return freshData
+  },
+
+  // Clear all data for a user
+  clearUserData: (userId: string) => {
+    storage.removeUserData(userId)
+    return true
+  },
+
+  // Get user data with fallback to defaults
+  getUserData: (userId: string) => {
+    let userData = storage.getUserData(userId)
+    if (!userData) {
+      userData = dataManager.initializeUserData(userId)
+    }
+    return userData
+  },
+
+  // Update specific section of user data
+  updateUserDataSection: (userId: string, section: string, data: any) => {
+    const userData = dataManager.getUserData(userId)
+    userData[section] = {
+      ...userData[section],
+      ...data,
+      lastUpdated: new Date().toISOString()
+    }
+    storage.setUserData(userId, userData)
+    return userData
+  },
+
+  // Migrate legacy data to new user system
+  migrateLegacyData: (userId: string) => {
+    const migrated = storage.get(STORAGE_KEYS.LEGACY_DATA_MIGRATED)
+    if (migrated) return false // Already migrated
+
+    const userData = dataManager.getUserData(userId)
+    
+    // Check for legacy data keys and migrate them
+    const legacyKeys = [
+      'financialHealth',
+      'netWorth',
+      'trueCost',
+      'timeValue',
+      'fuelCost',
+      'lifeContext',
+      'location',
+      'aiInsights',
+      'dataSources',
+      'taxData'
+    ]
+
+    let hasLegacyData = false
+    legacyKeys.forEach(key => {
+      const legacyData = storage.get(key)
+      if (legacyData) {
+        userData[key] = {
+          ...userData[key],
+          ...legacyData,
+          lastUpdated: new Date().toISOString()
+        }
+        hasLegacyData = true
+        storage.remove(key) // Clean up legacy data
+      }
+    })
+
+    if (hasLegacyData) {
+      storage.setUserData(userId, userData)
+      storage.set(STORAGE_KEYS.LEGACY_DATA_MIGRATED, true)
+      return true
+    }
+
+    return false
+  },
+
+  // Export all data for a user
+  exportAllUserData: (userId: string) => {
+    const userData = dataManager.getUserData(userId)
+    const users = storage.get(STORAGE_KEYS.USERS) || []
+    const user = users.find((u: UserAccount) => u.id === userId)
+    
+    if (!user) return null
+
+    return {
+      user,
+      data: userData,
+      exportDate: new Date().toISOString(),
+      version: '1.1',
+      metadata: {
+        totalSections: Object.keys(userData).length,
+        dataSize: JSON.stringify(userData).length,
+        sections: Object.keys(userData)
+      }
+    }
+  },
+
+  // Import and validate user data
+  importUserData: async (data: any): Promise<boolean> => {
+    try {
+      if (!data.user || !data.data) return false
+      
+      // Validate data structure
+      const requiredSections = Object.keys(DEFAULT_USER_DATA)
+      const hasValidStructure = requiredSections.every(section => 
+        data.data.hasOwnProperty(section)
+      )
+      
+      if (!hasValidStructure) {
+        console.warn('Imported data missing required sections, initializing defaults')
+        // Merge with defaults for missing sections
+        data.data = {
+          ...DEFAULT_USER_DATA,
+          ...data.data
+        }
+      }
+      
+      const users = storage.get(STORAGE_KEYS.USERS) || []
+      const existingUser = users.find((u: UserAccount) => u.id === data.user.id)
+      
+      if (!existingUser) {
+        const updatedUsers = [...users, data.user]
+        storage.set(STORAGE_KEYS.USERS, updatedUsers)
+      }
+      
+      storage.setUserData(data.user.id, data.data)
+      return true
+    } catch (error) {
+      console.error('Error importing user data:', error)
+      return false
+    }
+  }
+}
+
 // Auth Provider Component
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null)
@@ -134,6 +331,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         )
         storage.set(STORAGE_KEYS.USERS, updatedUsers)
         
+        // Ensure user has data initialized and migrate legacy data if needed
+        dataManager.getUserData(user.id)
+        dataManager.migrateLegacyData(user.id)
+        
         return true
       }
     }
@@ -162,11 +363,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         notifications: true,
         privacyLevel: 'local'
       },
-      dataVersion: '1.0'
+      dataVersion: '1.1'
     }
 
     const updatedUsers = [...users, newUser]
     storage.set(STORAGE_KEYS.USERS, updatedUsers)
+    
+    // Initialize fresh data for new user
+    dataManager.initializeUserData(newUser.id)
     
     // Auto-login after registration
     setCurrentUser(newUser)
@@ -189,6 +393,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(user)
       setIsAuthenticated(true)
       storage.set(STORAGE_KEYS.CURRENT_USER_ID, userId)
+      
+      // Ensure user has data initialized
+      dataManager.getUserData(userId)
     }
   }
 
@@ -206,55 +413,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const exportUserData = (userId: string) => {
-    const userData = storage.getUserData(userId)
-    const users = storage.get(STORAGE_KEYS.USERS) || []
-    const user = users.find((u: UserAccount) => u.id === userId)
-    
-    if (!userData || !user) return
-
-    const exportData = {
-      user,
-      data: userData,
-      exportDate: new Date().toISOString(),
-      version: '1.0'
-    }
+    const exportData = dataManager.exportAllUserData(userId)
+    if (!exportData) return
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `aegis-${user.username}-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `aegis-${exportData.user.username}-${new Date().toISOString().split('T')[0]}.json`
     link.click()
   }
 
   const importUserData = async (data: any): Promise<boolean> => {
-    try {
-      if (!data.user || !data.data) return false
-      
-      const users = storage.get(STORAGE_KEYS.USERS) || []
-      const existingUser = users.find((u: UserAccount) => u.id === data.user.id)
-      
-      if (!existingUser) {
-        // Add new user
-        const updatedUsers = [...users, data.user]
-        storage.set(STORAGE_KEYS.USERS, updatedUsers)
-      }
-      
-      // Import user data
-      storage.setUserData(data.user.id, data.data)
-      
-      return true
-    } catch (error) {
-      console.error('Error importing user data:', error)
-      return false
-    }
+    return await dataManager.importUserData(data)
   }
 
   const deleteUser = (userId: string) => {
     const users = storage.get(STORAGE_KEYS.USERS) || []
     const updatedUsers = users.filter((u: UserAccount) => u.id !== userId)
     storage.set(STORAGE_KEYS.USERS, updatedUsers)
-    storage.removeUserData(userId)
+    
+    // Clear all user data
+    dataManager.clearUserData(userId)
     
     // If deleting current user, logout
     if (currentUser?.id === userId) {
@@ -272,7 +452,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUser,
     exportUserData,
     importUserData,
-    deleteUser
+    deleteUser,
+    clearUserData: dataManager.clearUserData,
+    getUserData: dataManager.getUserData,
+    updateUserDataSection: dataManager.updateUserDataSection,
+    migrateLegacyData: dataManager.migrateLegacyData
   }
 
   return (
@@ -423,9 +607,11 @@ export function LoginForm() {
 
 // User Management Component
 export function UserManager() {
-  const { currentUser, logout, switchUser, exportUserData, importUserData, deleteUser } = useAuth()
+  const { currentUser, logout, switchUser, exportUserData, importUserData, deleteUser, clearUserData, getUserData } = useAuth()
   const [users, setUsers] = useState<UserAccount[]>([])
   const [showImport, setShowImport] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<string | null>(null)
+  const [showDataStats, setShowDataStats] = useState<string | null>(null)
 
   useEffect(() => {
     const allUsers = storage.get(STORAGE_KEYS.USERS) || []
@@ -445,6 +631,9 @@ export function UserManager() {
             const allUsers = storage.get(STORAGE_KEYS.USERS) || []
             setUsers(allUsers)
             setShowImport(false)
+            alert('Data imported successfully!')
+          } else {
+            alert('Error importing data. Please check file format.')
           }
         } catch (error) {
           alert('Error importing data. Please check file format.')
@@ -452,6 +641,27 @@ export function UserManager() {
       }
       reader.readAsText(file)
     }
+  }
+
+  const handleClearData = (userId: string, username: string) => {
+    if (confirm(`Are you sure you want to clear all data for ${username}? This action cannot be undone.`)) {
+      clearUserData(userId)
+      alert('Data cleared successfully!')
+    }
+  }
+
+  const getDataStats = (userId: string) => {
+    const userData = getUserData(userId)
+    const stats = {
+      totalSections: Object.keys(userData).length,
+      dataSize: JSON.stringify(userData).length,
+      sections: Object.keys(userData).map(section => ({
+        name: section,
+        hasData: Object.keys(userData[section]).length > 1, // More than just lastUpdated
+        lastUpdated: userData[section].lastUpdated
+      }))
+    }
+    return stats
   }
 
   return (
@@ -483,56 +693,134 @@ export function UserManager() {
         </h3>
 
         <div className="space-y-3">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className={`flex items-center justify-between p-4 rounded-lg border ${
-                currentUser?.id === user.id
-                  ? 'border-aegis-300 bg-aegis-50'
-                  : 'border-gray-200 bg-white'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <User className="h-5 w-5 text-gray-400" />
-                <div>
-                  <div className="font-medium text-gray-900">{user.username}</div>
-                  <div className="text-sm text-gray-500">
-                    Created: {new Date(user.createdAt).toLocaleDateString()}
+          {users.map((user) => {
+            const stats = getDataStats(user.id)
+            const isCurrentUser = currentUser?.id === user.id
+            
+            return (
+              <div
+                key={user.id}
+                className={`p-4 rounded-lg border ${
+                  isCurrentUser
+                    ? 'border-aegis-300 bg-aegis-50'
+                    : 'border-gray-200 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <User className="h-5 w-5 text-gray-400" />
+                    <div>
+                      <div className="font-medium text-gray-900 flex items-center space-x-2">
+                        <span>{user.username}</span>
+                        {isCurrentUser && (
+                          <span className="text-xs bg-aegis-100 text-aegis-700 px-2 py-1 rounded-full">
+                            Current
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Created: {new Date(user.createdAt).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        Data: {stats.totalSections} sections, {(stats.dataSize / 1024).toFixed(1)}KB
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setShowDataStats(showDataStats === user.id ? null : user.id)}
+                      className="text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      {showDataStats === user.id ? 'Hide' : 'Stats'}
+                    </button>
+                    
+                    {!isCurrentUser && (
+                      <button
+                        onClick={() => switchUser(user.id)}
+                        className="aegis-button-secondary text-sm"
+                      >
+                        Switch
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={() => exportUserData(user.id)}
+                      className="aegis-button-secondary text-sm"
+                    >
+                      Export
+                    </button>
+                    
+                    <button
+                      onClick={() => handleClearData(user.id, user.username)}
+                      className="text-orange-600 hover:text-orange-700 text-sm"
+                    >
+                      Clear Data
+                    </button>
+                    
+                    {users.length > 1 && (
+                      <button
+                        onClick={() => {
+                          if (confirm(`Delete user ${user.username}? This will permanently remove the account and all data.`)) {
+                            deleteUser(user.id)
+                            setUsers(users.filter(u => u.id !== user.id))
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-700 text-sm"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center space-x-2">
-                {currentUser?.id !== user.id && (
-                  <button
-                    onClick={() => switchUser(user.id)}
-                    className="aegis-button-secondary text-sm"
-                  >
-                    Switch
-                  </button>
-                )}
-                <button
-                  onClick={() => exportUserData(user.id)}
-                  className="aegis-button-secondary text-sm"
-                >
-                  Export
-                </button>
-                {users.length > 1 && (
-                  <button
-                    onClick={() => {
-                      if (confirm(`Delete user ${user.username}? This cannot be undone.`)) {
-                        deleteUser(user.id)
-                        setUsers(users.filter(u => u.id !== user.id))
-                      }
-                    }}
-                    className="text-red-600 hover:text-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
+                {/* Data Statistics */}
+                {showDataStats === user.id && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Data Statistics</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                      <div>
+                        <div className="text-gray-500">Total Size</div>
+                        <div className="font-medium">{(stats.dataSize / 1024).toFixed(1)}KB</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Sections</div>
+                        <div className="font-medium">{stats.totalSections}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">With Data</div>
+                        <div className="font-medium">{stats.sections.filter(s => s.hasData).length}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Last Updated</div>
+                        <div className="font-medium">
+                          {new Date(Math.max(...stats.sections.map(s => new Date(s.lastUpdated).getTime()))).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3">
+                      <div className="text-xs text-gray-500 mb-1">Data Sections:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {stats.sections.map(section => (
+                          <span
+                            key={section.name}
+                            className={`text-xs px-2 py-1 rounded ${
+                              section.hasData 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            {section.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -572,6 +860,17 @@ export function UserManager() {
               Restore user data from backup
             </p>
           </div>
+        </div>
+
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">Data Management Tips</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• New users start with fresh, empty data structures</li>
+            <li>• Legacy data is automatically migrated on first login</li>
+            <li>• Export your data regularly for backup</li>
+            <li>• Clear data to reset specific user information</li>
+            <li>• Delete account to permanently remove user and all data</li>
+          </ul>
         </div>
       </div>
 
