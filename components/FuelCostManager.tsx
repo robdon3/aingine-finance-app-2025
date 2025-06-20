@@ -161,10 +161,12 @@ export default function FuelCostManager() {
 
   if (isLoading) {
     return (
-      <div className="aegis-card">
-        <div className="flex items-center justify-center py-8">
-          <RefreshCw className="h-6 w-6 text-aegis-600 animate-spin" />
-          <span className="ml-2 text-gray-600">Loading fuel cost data...</span>
+      <div className="p-4 lg:p-6">
+        <div className="aegis-card">
+          <div className="flex items-center justify-center py-8">
+            <RefreshCw className="h-6 w-6 text-aegis-600 animate-spin" />
+            <span className="ml-2 text-gray-600">Loading fuel cost data...</span>
+          </div>
         </div>
       </div>
     )
@@ -172,22 +174,24 @@ export default function FuelCostManager() {
 
   if (error && !nationalData) {
     return (
-      <div className="aegis-card">
-        <div className="text-center py-8">
-          <div className="text-red-600 mb-2">{error}</div>
-          <button 
-            onClick={() => loadGasPrices(true)}
-            className="aegis-button-secondary"
-          >
-            Try Again
-          </button>
+      <div className="p-4 lg:p-6">
+        <div className="aegis-card">
+          <div className="text-center py-8">
+            <div className="text-red-600 mb-2">{error}</div>
+            <button 
+              onClick={() => loadGasPrices(true)}
+              className="aegis-button-secondary"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 lg:p-6 space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Fuel Cost Manager</h2>
         <p className="text-gray-600">

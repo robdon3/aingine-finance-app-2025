@@ -191,7 +191,7 @@ function MainApp() {
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto">
-          <div className="p-4 lg:p-6">
+          <div>
             {activeTab === 'dashboard' && <Dashboard />}
 
             {activeTab === 'fuel-cost' && <FuelCostManager />}

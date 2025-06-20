@@ -75,7 +75,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="p-4 lg:p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Agency Dashboard</h2>
           <p className="text-gray-600">Loading your data...</p>
@@ -110,7 +110,7 @@ export default function Dashboard() {
   const lifeContextGoals = data.lifeContext.goals || []
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 lg:p-6 space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Agency Dashboard</h2>
         <p className="text-gray-600">Comprehensive overview of your financial health, life context, and key metrics.</p>
