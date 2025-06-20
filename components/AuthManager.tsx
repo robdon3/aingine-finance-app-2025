@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, createContext, useContext } from 'react'
-import { User, Lock, Shield, Database, Smartphone, Globe, Key, LogOut, Plus, Settings, Download, Upload, Trash2, Eye, EyeOff } from 'lucide-react'
+import { User, Users, Lock, Shield, Database, Smartphone, Globe, Key, LogOut, Plus, Settings, Download, Upload, Trash2, Eye, EyeOff } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 
 // Types
@@ -595,6 +595,4 @@ export function UserManager() {
       </div>
     </div>
   )
-}
-
-export default AuthManager 
+} 
