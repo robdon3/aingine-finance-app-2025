@@ -30,11 +30,29 @@ const localStorageAdapter = {
 
 // --- Storage Manager ---
 export const storageManager = {
-  // --- User Account Management (Always local for now) ---
-  getUsers: (): UserAccount[] => {
+  // --- User Account Management (Local or Cloud) ---
+  getUsers: async (): Promise<UserAccount[]> => {
+    // Try to get users from cloud first, then fall back to local
+    try {
+      const cloudUsers = await cloudStorage.getUsers();
+      if (cloudUsers && cloudUsers.length > 0) {
+        return cloudUsers;
+      }
+    } catch (error) {
+      console.log('No cloud users found, checking local storage');
+    }
+    
+    // Fall back to local storage
     return localStorageAdapter.get('aegis_users') || [];
   },
-  setUsers: (users: UserAccount[]) => {
+  
+  setUsers: async (users: UserAccount[]) => {
+    // Store in both cloud and local for redundancy
+    try {
+      await cloudStorage.setUsers(users);
+    } catch (error) {
+      console.error('Failed to store users in cloud:', error);
+    }
     localStorageAdapter.set('aegis_users', users);
   },
   

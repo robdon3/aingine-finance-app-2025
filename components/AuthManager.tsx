@@ -32,8 +32,8 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<boolean>
   register: (username: string, email: string, password: string, storagePreference?: 'local' | 'cloud') => Promise<boolean>
   logout: () => void
-  switchUser: (userId: string) => void
-  updateUser: (updates: Partial<UserAccount>) => void
+  switchUser: (userId: string) => Promise<void>
+  updateUser: (updates: Partial<UserAccount>) => Promise<void>
   exportUserData: (userId: string) => Promise<any>
   importUserData: (data: any) => Promise<boolean>
   deleteUser: (userId: string) => Promise<void>
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const exportUserData = async (userId: string) => {
     const userData = await getUserData(userId);
-    const users = dataManager.getUsers();
+    const users = await dataManager.getUsers();
     const user = users.find((u) => u.id === userId);
     if (!user) return null;
     return { user, data: userData, exportDate: new Date().toISOString(), version: '1.1' };
@@ -90,10 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const importUserData = async (data: any): Promise<boolean> => {
     try {
       if (!data.user || !data.data) return false;
-      const users = dataManager.getUsers();
+      const users = await dataManager.getUsers();
       const existingUser = users.find((u) => u.id === data.user.id);
       if (!existingUser) {
-        dataManager.setUsers([...users, data.user]);
+        await dataManager.setUsers([...users, data.user]);
       }
       await dataManager.set(data.user.id, data.data);
       return true;
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const migrateLegacyData = (userId: string) => { return true; };
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    const users = dataManager.getUsers();
+    const users = await dataManager.getUsers();
     const user = users.find(u => u.username === username);
     if (user) {
       if (password === 'password') { // Demo password
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true);
         localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
         const updatedUsers = users.map((u) => u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u);
-        dataManager.setUsers(updatedUsers);
+        await dataManager.setUsers(updatedUsers);
         migrateLegacyData(user.id);
         return true;
       }
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (username: string, email: string, password: string, storagePreference: 'local' | 'cloud' = 'local'): Promise<boolean> => {
-    const users = dataManager.getUsers();
+    const users = await dataManager.getUsers();
     if (users.find(u => u.username === username)) return false;
 
     const newUser: UserAccount = {
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       dataVersion: '1.1'
     };
     const updatedUsers = [...users, newUser];
-    dataManager.setUsers(updatedUsers);
+    await dataManager.setUsers(updatedUsers);
     await dataManager.set(newUser.id, DEFAULT_USER_DATA);
     setCurrentUser(newUser);
     setIsAuthenticated(true);
@@ -158,8 +158,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
   };
 
-  const switchUser = (userId: string) => {
-    const users = dataManager.getUsers();
+  const switchUser = async (userId: string) => {
+    const users = await dataManager.getUsers();
     const user = users.find((u) => u.id === userId);
     if (user) {
       setCurrentUser(user);
@@ -168,19 +168,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateUser = (updates: Partial<UserAccount>) => {
+  const updateUser = async (updates: Partial<UserAccount>) => {
     if (!currentUser) return;
     const updatedUser = { ...currentUser, ...updates };
     setCurrentUser(updatedUser);
-    const users = dataManager.getUsers();
+    const users = await dataManager.getUsers();
     const updatedUsers = users.map((u) => u.id === currentUser.id ? updatedUser : u);
-    dataManager.setUsers(updatedUsers);
+    await dataManager.setUsers(updatedUsers);
   };
 
   const deleteUser = async (userId: string) => {
-    const users = dataManager.getUsers();
+    const users = await dataManager.getUsers();
     const updatedUsers = users.filter((u) => u.id !== userId);
-    dataManager.setUsers(updatedUsers);
+    await dataManager.setUsers(updatedUsers);
     await dataManager.remove(userId);
     if (currentUser?.id === userId) {
       logout();

@@ -55,7 +55,7 @@ export function UserManager() {
     setUpdatingStorage(true);
     try {
       // Update user preferences
-      updateUser({
+      await updateUser({
         preferences: {
           ...currentUser.preferences,
           storagePreference: preference,
