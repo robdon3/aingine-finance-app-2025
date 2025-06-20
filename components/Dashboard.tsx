@@ -2,16 +2,16 @@
 
 import React from 'react'
 import { useUserData } from './UserDataManager'
-import { Calculator, Fuel, Clock } from 'lucide-react'
+import { Calculator, Fuel, Clock, TrendingUp, PiggyBank, ShieldCheck, Zap } from 'lucide-react'
 
 // Helper to format currency
-const formatCurrency = (value: number) => {
+const formatCurrency = (value: number | undefined) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value)
+  }).format(value || 0)
 }
 
 // Helper to format numbers with signs
@@ -23,18 +23,31 @@ const formatSignedCurrency = (value: number) => {
 export default function Dashboard() {
   const { getSection, hasData } = useUserData()
 
-  const financialHealth = getSection('financialHealth')
-  const netWorth = getSection('netWorth')
-  const trueCost = getSection('trueCost')
-  const timeValue = getSection('timeValue')
-  const fuelCost = getSection('fuelCost')
-  const lifeContext = getSection('lifeContext')
+  // Safely get data sections, providing default empty objects
+  const financialHealth = getSection('financialHealth') || {}
+  const netWorth = getSection('netWorth') || {}
+  const trueCost = getSection('trueCost') || {}
+  const timeValue = getSection('timeValue') || {}
+  const fuelCost = getSection('fuelCost') || {}
+  const lifeContext = getSection('lifeContext') || {}
+  const aiInsights = getSection('aiInsights') || {}
 
-  // Example calculations (replace with real logic later)
-  const netWorthValue = netWorth.assets.reduce((sum: number, a: any) => sum + a.value, 0) - netWorth.liabilities.reduce((sum: number, l: any) => sum + l.value, 0)
-  const monthlySavings = financialHealth.income - financialHealth.expenses
-  const savingsRate = financialHealth.income > 0 ? (monthlySavings / financialHealth.income) * 100 : 0
-  const emergencyFund = financialHealth.expenses > 0 ? (netWorth.assets.find((a: any) => a.type === 'cash')?.value || 0) / financialHealth.expenses : 0
+  // --- Safe Calculations with default fallbacks ---
+  const assets = netWorth.assets || []
+  const liabilities = netWorth.liabilities || []
+  const netWorthValue = assets.reduce((sum: number, a: any) => sum + (a.value || 0), 0) - liabilities.reduce((sum: number, l: any) => sum + (l.value || 0), 0)
+  
+  const income = financialHealth.income || 0
+  const expenses = financialHealth.expenses || 0
+  const monthlySavings = income - expenses
+  const savingsRate = income > 0 ? (monthlySavings / income) * 100 : 0
+  
+  const cashAssets = assets.find((a: any) => a.type === 'cash')?.value || 0
+  const emergencyFund = expenses > 0 ? cashAssets / expenses : 0
+
+  const trueCostCalculations = trueCost.calculations || []
+  const aiInsightsList = aiInsights.insights || []
+  const lifeContextGoals = lifeContext.goals || []
 
   return (
     <div className="space-y-6">
@@ -52,16 +65,18 @@ export default function Dashboard() {
               <p className="text-sm font-medium text-gray-600">Current Net Worth</p>
               <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(netWorthValue)}</p>
             </div>
+            <TrendingUp className="h-6 w-6 text-gray-400" />
           </div>
         </div>
         
-        {/* Fuel Cost Today */}
+        {/* Avg. Fuel Cost */}
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Avg. Fuel Cost</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(fuelCost.gasPrices?.regular || 0)}</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(fuelCost.gasPrices?.regular)}</p>
             </div>
+            <Fuel className="h-6 w-6 text-gray-400" />
           </div>
         </div>
         
@@ -70,18 +85,20 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Monthly Savings</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(monthlySavings)}</p>
+              <p className={`text-xl lg:text-2xl font-bold ${monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(monthlySavings)}</p>
             </div>
+            <PiggyBank className="h-6 w-6 text-gray-400" />
           </div>
         </div>
         
-        {/* Time Value Score */}
+        {/* Emergency Fund */}
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Time Value Score</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{timeValue.score || 0}/100</p>
+              <p className="text-sm font-medium text-gray-600">Emergency Fund</p>
+              <p className="text-xl lg:text-2xl font-bold text-blue-600">{emergencyFund.toFixed(1)} months</p>
             </div>
+            <ShieldCheck className="h-6 w-6 text-gray-400" />
           </div>
         </div>
       </div>
@@ -96,19 +113,23 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Monthly Income</p>
-                <p className="text-lg lg:text-xl font-bold text-gray-900">{formatCurrency(financialHealth.income)}</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900">{formatCurrency(income)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Monthly Expenses</p>
-                <p className="text-lg lg:text-xl font-bold text-gray-900">{formatCurrency(financialHealth.expenses)}</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900">{formatCurrency(expenses)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Savings Rate</p>
-                <p className="text-lg lg:text-xl font-bold text-green-600">{savingsRate.toFixed(1)}%</p>
+                <p className={`text-lg lg:text-xl font-bold ${savingsRate >= 10 ? 'text-green-600' : 'text-orange-500'}`}>{savingsRate.toFixed(1)}%</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Emergency Fund</p>
-                <p className="text-lg lg:text-xl font-bold text-blue-600">{emergencyFund.toFixed(1)} months</p>
+                <p className="text-sm text-gray-600">Assets vs Debt</p>
+                <p className="text-lg lg:text-xl font-bold text-blue-600">
+                  {liabilities.reduce((s: number, l:any) => s + l.value, 0) > 0 
+                    ? `${(assets.reduce((s: number, a:any) => s + a.value, 0) / liabilities.reduce((s: number, l:any) => s + l.value, 0)).toFixed(1)}x` 
+                    : 'N/A'}
+                </p>
               </div>
             </div>
           </div>
@@ -117,23 +138,25 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent True Cost Analysis</h3>
             <div className="space-y-3">
-              {hasData('trueCost') && trueCost.calculations.length > 0 ? (
-                trueCost.calculations.slice(0, 2).map((calc: any) => (
+              {trueCostCalculations.length > 0 ? (
+                trueCostCalculations.slice(0, 2).map((calc: any) => (
                   <div key={calc.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{calc.name}</p>
+                      <p className="font-medium text-gray-900">{calc.name || 'Untitled Calculation'}</p>
                       <p className="text-sm text-gray-600">Sticker: {formatCurrency(calc.stickerPrice)}</p>
                     </div>
                     <div className="sm:text-right mt-2 sm:mt-0">
                       <p className="font-bold text-red-600">True Cost: {formatCurrency(calc.trueCost)}</p>
                       <p className="text-xs text-gray-500">
-                        +{(((calc.trueCost - calc.stickerPrice) / calc.stickerPrice) * 100).toFixed(1)}% hidden costs
+                        {calc.stickerPrice > 0 
+                          ? `+${(((calc.trueCost - calc.stickerPrice) / calc.stickerPrice) * 100).toFixed(1)}% hidden costs`
+                          : 'Invalid sticker price'}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500">No True Cost analyses performed yet.</p>
+                <p className="text-gray-500 text-center py-4">No True Cost analyses performed yet.</p>
               )}
             </div>
           </div>
@@ -185,10 +208,13 @@ export default function Dashboard() {
 
           {/* AI Insights */}
           <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Insights</h3>
-            {hasData('aiInsights') && lifeContext.insights.length > 0 ? (
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Zap className="h-5 w-5 mr-2 text-aegis-500" />
+              AI Insights
+            </h3>
+            {aiInsightsList.length > 0 ? (
               <div className="space-y-3">
-                {lifeContext.insights.slice(0,3).map((insight: any) => (
+                {aiInsightsList.slice(0,3).map((insight: any) => (
                     <div key={insight.id} className={`p-3 bg-${insight.color}-50 border border-${insight.color}-200 rounded-lg`}>
                         <p className={`text-sm font-medium text-${insight.color}-800`}>{insight.title}</p>
                         <p className={`text-xs text-${insight.color}-700`}>{insight.text}</p>
@@ -196,22 +222,22 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : (
-                <p className="text-gray-500">No AI insights generated yet.</p>
+                <p className="text-gray-500 text-center py-4">No AI insights generated yet.</p>
             )}
           </div>
 
           {/* Life Context Summary */}
           <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Life Context</h3>
-            {hasData('lifeContext') && lifeContext.goals?.length > 0 ? (
+            {lifeContextGoals.length > 0 ? (
               <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Primary Goal</span>
-                    <span className="text-sm font-medium text-gray-900">{lifeContext.goals[0].name}</span>
+                    <span className="text-sm font-medium text-gray-900">{lifeContextGoals[0].name}</span>
                   </div>
               </div>
             ) : (
-                <p className="text-gray-500">No life context defined yet.</p>
+                <p className="text-gray-500 text-center py-4">No life context defined yet.</p>
             )}
           </div>
         </div>
