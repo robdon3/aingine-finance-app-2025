@@ -112,53 +112,53 @@ export default function Dashboard() {
   return (
     <div className="p-4 lg:p-6 space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Agency Dashboard</h2>
-        <p className="text-gray-600">Comprehensive overview of your financial health, life context, and key metrics.</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Your Agency Dashboard</h2>
+        <p className="text-gray-600 dark:text-gray-400">Comprehensive overview of your financial health, life context, and key metrics.</p>
       </div>
       
       {/* Key Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Current Net Worth */}
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Current Net Worth</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(netWorthValue)}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Net Worth</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(netWorthValue)}</p>
             </div>
-            <TrendingUp className="h-6 w-6 text-gray-400" />
+            <TrendingUp className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
         
         {/* Avg. Fuel Cost */}
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Avg. Fuel Cost</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(data.fuelCost.gasPrices?.regular)}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Fuel Cost</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(data.fuelCost.gasPrices?.regular)}</p>
             </div>
-            <Fuel className="h-6 w-6 text-gray-400" />
+            <Fuel className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
         
         {/* Monthly Savings */}
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Monthly Savings</p>
-              <p className={`text-xl lg:text-2xl font-bold ${monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(monthlySavings)}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Savings</p>
+              <p className={`text-xl lg:text-2xl font-bold ${monthlySavings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{formatCurrency(monthlySavings)}</p>
             </div>
-            <PiggyBank className="h-6 w-6 text-gray-400" />
+            <PiggyBank className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
         
         {/* Emergency Fund */}
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Emergency Fund</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-600">{emergencyFund.toFixed(1)} months</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Emergency Fund</p>
+              <p className="text-xl lg:text-2xl font-bold text-blue-600 dark:text-blue-400">{emergencyFund.toFixed(1)} months</p>
             </div>
-            <ShieldCheck className="h-6 w-6 text-gray-400" />
+            <ShieldCheck className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
       </div>
@@ -168,24 +168,24 @@ export default function Dashboard() {
         {/* Left Column - Financial Overview */}
         <div className="lg:col-span-2 space-y-6">
           {/* Financial Health Summary */}
-          <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Health Summary</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Financial Health Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Monthly Income</p>
-                <p className="text-lg lg:text-xl font-bold text-gray-900">{formatCurrency(income)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Income</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(income)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Monthly Expenses</p>
-                <p className="text-lg lg:text-xl font-bold text-gray-900">{formatCurrency(expenses)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Expenses</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(expenses)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Savings Rate</p>
-                <p className={`text-lg lg:text-xl font-bold ${savingsRate >= 10 ? 'text-green-600' : 'text-orange-500'}`}>{savingsRate.toFixed(1)}%</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Savings Rate</p>
+                <p className={`text-lg lg:text-xl font-bold ${savingsRate >= 10 ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}`}>{savingsRate.toFixed(1)}%</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Assets vs Debt</p>
-                <p className="text-lg lg:text-xl font-bold text-blue-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Assets vs Debt</p>
+                <p className="text-lg lg:text-xl font-bold text-blue-600 dark:text-blue-400">
                   {liabilities.reduce((s: number, l:any) => s + l.value, 0) > 0 
                     ? `${(assets.reduce((s: number, a:any) => s + a.value, 0) / liabilities.reduce((s: number, l:any) => s + l.value, 0)).toFixed(1)}x` 
                     : 'N/A'}
@@ -195,19 +195,19 @@ export default function Dashboard() {
           </div>
 
           {/* Recent True Cost Analysis */}
-          <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent True Cost Analysis</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent True Cost Analysis</h3>
             <div className="space-y-3">
               {trueCostCalculations.length > 0 ? (
                 trueCostCalculations.slice(0, 2).map((calc: any) => (
-                  <div key={calc.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={calc.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{calc.name || 'Untitled Calculation'}</p>
-                      <p className="text-sm text-gray-600">Sticker: {formatCurrency(calc.stickerPrice)}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{calc.name || 'Untitled Calculation'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Sticker: {formatCurrency(calc.stickerPrice)}</p>
                     </div>
                     <div className="sm:text-right mt-2 sm:mt-0">
-                      <p className="font-bold text-red-600">True Cost: {formatCurrency(calc.trueCost)}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-bold text-red-600 dark:text-red-400">True Cost: {formatCurrency(calc.trueCost)}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {calc.stickerPrice > 0 
                           ? `+${(((calc.trueCost - calc.stickerPrice) / calc.stickerPrice) * 100).toFixed(1)}% hidden costs`
                           : 'Invalid sticker price'}
@@ -216,16 +216,16 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-center py-4">No True Cost analyses performed yet.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No True Cost analyses performed yet.</p>
               )}
             </div>
           </div>
 
           {/* Net Worth Trend */}
-          <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Net Worth Trend</h3>
-            <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500">Chart placeholder - Net worth over time</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Net Worth Trend</h3>
+            <div className="h-48 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <p className="text-gray-500 dark:text-gray-400">Chart placeholder - Net worth over time</p>
             </div>
           </div>
         </div>
@@ -233,33 +233,33 @@ export default function Dashboard() {
         {/* Right Column - Quick Actions & Insights */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full text-left p-3 bg-aegis-50 hover:bg-aegis-100 rounded-lg transition-colors">
+              <button className="w-full text-left p-3 bg-aegis-50 dark:bg-aegis-900 hover:bg-aegis-100 dark:hover:bg-aegis-800 rounded-lg transition-colors">
                 <div className="flex items-center space-x-3">
                   <Calculator className="h-5 w-5 text-aegis-600" />
                   <div>
-                    <p className="font-medium text-gray-900">Calculate True Cost</p>
-                    <p className="text-sm text-gray-600">New purchase decision</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Calculate True Cost</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">New purchase decision</p>
                   </div>
                 </div>
               </button>
-              <button className="w-full text-left p-3 bg-aegis-50 hover:bg-aegis-100 rounded-lg transition-colors">
+              <button className="w-full text-left p-3 bg-aegis-50 dark:bg-aegis-900 hover:bg-aegis-100 dark:hover:bg-aegis-800 rounded-lg transition-colors">
                 <div className="flex items-center space-x-3">
                   <Fuel className="h-5 w-5 text-aegis-600" />
                   <div>
-                    <p className="font-medium text-gray-900">Check Fuel Prices</p>
-                    <p className="text-sm text-gray-600">Current AAA rates</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Check Fuel Prices</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Current AAA rates</p>
                   </div>
                 </div>
               </button>
-              <button className="w-full text-left p-3 bg-aegis-50 hover:bg-aegis-100 rounded-lg transition-colors">
+              <button className="w-full text-left p-3 bg-aegis-50 dark:bg-aegis-900 hover:bg-aegis-100 dark:hover:bg-aegis-800 rounded-lg transition-colors">
                 <div className="flex items-center space-x-3">
                   <Clock className="h-5 w-5 text-aegis-600" />
                   <div>
-                    <p className="font-medium text-gray-900">Time Value Calculator</p>
-                    <p className="text-sm text-gray-600">Future value analysis</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Time Value Calculator</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Future value analysis</p>
                   </div>
                 </div>
               </button>
@@ -267,37 +267,37 @@ export default function Dashboard() {
           </div>
 
           {/* AI Insights */}
-          <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center space-x-2">
               <Zap className="h-5 w-5 text-aegis-600" />
               <span>AI Insights</span>
             </h3>
             <div className="space-y-3">
               {aiInsightsList.length > 0 ? (
                 aiInsightsList.slice(0, 3).map((insight: any, index: number) => (
-                  <div key={index} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-900">{insight.message || insight}</p>
+                  <div key={index} className="p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+                    <p className="text-sm text-blue-900 dark:text-blue-200">{insight.message || insight}</p>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-center py-4">No AI insights available yet.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No AI insights available yet.</p>
               )}
             </div>
           </div>
 
           {/* Life Context Goals */}
-          <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Life Context Goals</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Life Context Goals</h3>
             <div className="space-y-2">
               {lifeContextGoals.length > 0 ? (
                 lifeContextGoals.slice(0, 3).map((goal: any, index: number) => (
                   <div key={index} className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-aegis-600 rounded-full"></div>
-                    <span className="text-sm text-gray-700">{goal.name || goal}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{goal.name || goal}</span>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-center py-4">No goals set yet.</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No goals set yet.</p>
               )}
             </div>
           </div>

@@ -10,13 +10,13 @@
   }
   
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200;
   }
 }
 
 @layer components {
   .aegis-card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200;
   }
   
   .aegis-button {
@@ -24,7 +24,7 @@
   }
   
   .aegis-button-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
   }
   
   .time-value-indicator {
@@ -32,14 +32,24 @@
   }
   
   .time-value-positive {
-    @apply bg-green-100 text-green-800;
+    @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200;
   }
   
   .time-value-negative {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200;
   }
   
   .time-value-neutral {
-    @apply bg-gray-100 text-gray-800;
+    @apply bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200;
+  }
+
+  /* Dark mode input styles */
+  .dark-input {
+    @apply bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-aegis-500 focus:border-transparent;
+  }
+
+  /* Dark mode form styles */
+  .dark-form {
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700;
   }
 } 

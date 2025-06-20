@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Shield, TrendingUp, Clock, DollarSign, Brain, Lock, Calculator, BarChart3, User, Settings, Database, MapPin, FileText, CheckCircle, Key, Fuel, Menu, X } from 'lucide-react'
 import { AuthProvider, useAuth, LoginForm } from '../components/AuthManager'
 import { UserManager } from '../components/UserManager'
+import { ThemeToggle } from '../components/ThemeProvider'
 import Dashboard from '../components/Dashboard'
 import TimeValueCalculator from '../components/TimeValueCalculator'
 import TrueCostCalculator from '../components/TrueCostCalculator'
@@ -66,7 +67,7 @@ function MainApp() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -77,25 +78,25 @@ function MainApp() {
 
       {/* Sidebar - Hidden on mobile, visible on desktop */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Shield className="h-6 w-6 text-aegis-600" />
-              <h1 className="text-lg font-bold text-gray-900">Project Aegis</h1>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Project Aegis</h1>
             </div>
             {/* Close button for mobile */}
             <button
               onClick={closeMobileMenu}
-              className="lg:hidden p-1 rounded-md hover:bg-gray-100"
+              className="lg:hidden p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
-          <p className="text-xs text-gray-600 mt-1">Engine for the People</p>
-          <div className="mt-2 text-xs text-gray-500">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Engine for the People</p>
+          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             User: {currentUser?.username}
           </div>
         </div>
@@ -103,7 +104,7 @@ function MainApp() {
         <nav className="mt-4">
           {/* Primary Features - Most Popular */}
           <div className="px-4 py-1">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
               🔥 Most Used
             </div>
             {tabs.filter(tab => tab.category === 'primary').map((tab) => (
@@ -112,8 +113,8 @@ function MainApp() {
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 mb-1 ${
                   activeTab === tab.id
-                    ? 'bg-aegis-100 text-aegis-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-aegis-100 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -124,7 +125,7 @@ function MainApp() {
 
           {/* Secondary Features - Regular Use */}
           <div className="px-4 py-1 mt-2">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
               📊 Regular Use
             </div>
             {tabs.filter(tab => tab.category === 'secondary').map((tab) => (
@@ -133,8 +134,8 @@ function MainApp() {
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-sm transition-colors duration-200 mb-1 ${
                   activeTab === tab.id
-                    ? 'bg-aegis-100 text-aegis-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-aegis-100 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -145,7 +146,7 @@ function MainApp() {
 
           {/* Setup & Config - Infrequent Use */}
           <div className="px-4 py-1 mt-2">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
               ⚙️ Setup & Config
             </div>
             {tabs.filter(tab => tab.category === 'setup').map((tab) => (
@@ -154,8 +155,8 @@ function MainApp() {
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-xs transition-colors duration-200 mb-1 ${
                   activeTab === tab.id
-                    ? 'bg-aegis-100 text-aegis-700'
-                    : 'text-gray-500 hover:bg-gray-100'
+                    ? 'bg-aegis-100 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <tab.icon className="h-3 w-3" />
@@ -169,22 +170,25 @@ function MainApp() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Mobile Header */}
-        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+        <div className="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="p-2 rounded-md hover:bg-gray-100"
+                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <Menu className="h-5 w-5 text-gray-600" />
+                <Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
               <div className="flex items-center space-x-2">
                 <Shield className="h-5 w-5 text-aegis-600" />
-                <h1 className="text-lg font-bold text-gray-900">Aegis</h1>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aegis</h1>
               </div>
             </div>
-            <div className="text-sm text-gray-600">
-              {currentUser?.username}
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {currentUser?.username}
+              </div>
             </div>
           </div>
         </div>

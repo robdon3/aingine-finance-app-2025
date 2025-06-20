@@ -1,6 +1,7 @@
 import React from 'react'
 import './globals.css'
 import type { Metadata } from 'next'
+import { ThemeProvider } from '../components/ThemeProvider'
 
 export const metadata: Metadata = {
   title: 'Project Aegis - Engine for the People',
@@ -15,10 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50">
-        <div className="flex min-h-screen">
-          {children}
-        </div>
+      <body className="min-h-screen">
+        <ThemeProvider>
+          <div className="flex min-h-screen">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   )
