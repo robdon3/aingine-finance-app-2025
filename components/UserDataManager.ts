@@ -10,25 +10,25 @@ export const useUserData = () => {
 
   return {
     // Get all user data
-    getAllData: () => getUserData(currentUser.id),
+    getAllData: async () => await getUserData(currentUser.id),
     
     // Get specific section data
-    getSection: (section: string) => {
-      const allData = getUserData(currentUser.id)
+    getSection: async (section: string) => {
+      const allData = await getUserData(currentUser.id)
       return allData[section] || null
     },
     
     // Update specific section
-    updateSection: (section: string, data: any) => {
-      return updateUserDataSection(currentUser.id, section, data)
+    updateSection: async (section: string, data: any) => {
+      return await updateUserDataSection(currentUser.id, section, data)
     },
     
     // Clear all user data
-    clearAllData: () => clearUserData(currentUser.id),
+    clearAllData: async () => await clearUserData(currentUser.id),
     
     // Get data statistics
-    getStats: () => {
-      const allData = getUserData(currentUser.id)
+    getStats: async () => {
+      const allData = await getUserData(currentUser.id)
       return {
         totalSections: Object.keys(allData).length,
         dataSize: JSON.stringify(allData).length,
@@ -41,8 +41,9 @@ export const useUserData = () => {
     },
     
     // Check if section has meaningful data
-    hasData: (section: string) => {
-      const sectionData = getUserData(currentUser.id)[section]
+    hasData: async (section: string) => {
+      const allData = await getUserData(currentUser.id)
+      const sectionData = allData[section]
       return sectionData && Object.keys(sectionData).length > 1
     }
   }

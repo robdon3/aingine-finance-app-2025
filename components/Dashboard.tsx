@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useUserData } from './UserDataManager'
 import { Calculator, Fuel, Clock, TrendingUp, PiggyBank, ShieldCheck, Zap } from 'lucide-react'
 
@@ -22,32 +22,92 @@ const formatSignedCurrency = (value: number) => {
 
 export default function Dashboard() {
   const { getSection, hasData } = useUserData()
+  const [data, setData] = useState<any>({
+    financialHealth: {},
+    netWorth: {},
+    trueCost: {},
+    timeValue: {},
+    fuelCost: {},
+    lifeContext: {},
+    aiInsights: {}
+  })
+  const [loading, setLoading] = useState(true)
 
-  // Safely get data sections, providing default empty objects
-  const financialHealth = getSection('financialHealth') || {}
-  const netWorth = getSection('netWorth') || {}
-  const trueCost = getSection('trueCost') || {}
-  const timeValue = getSection('timeValue') || {}
-  const fuelCost = getSection('fuelCost') || {}
-  const lifeContext = getSection('lifeContext') || {}
-  const aiInsights = getSection('aiInsights') || {}
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [
+          financialHealth,
+          netWorth,
+          trueCost,
+          timeValue,
+          fuelCost,
+          lifeContext,
+          aiInsights
+        ] = await Promise.all([
+          getSection('financialHealth'),
+          getSection('netWorth'),
+          getSection('timeValue'),
+          getSection('trueCost'),
+          getSection('fuelCost'),
+          getSection('lifeContext'),
+          getSection('aiInsights')
+        ])
+
+        setData({
+          financialHealth: financialHealth || {},
+          netWorth: netWorth || {},
+          trueCost: trueCost || {},
+          timeValue: timeValue || {},
+          fuelCost: fuelCost || {},
+          lifeContext: lifeContext || {},
+          aiInsights: aiInsights || {}
+        })
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [getSection])
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Agency Dashboard</h2>
+          <p className="text-gray-600">Loading your data...</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow p-4 border border-gray-200 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   // --- Safe Calculations with default fallbacks ---
-  const assets = netWorth.assets || []
-  const liabilities = netWorth.liabilities || []
+  const assets = data.netWorth.assets || []
+  const liabilities = data.netWorth.liabilities || []
   const netWorthValue = assets.reduce((sum: number, a: any) => sum + (a.value || 0), 0) - liabilities.reduce((sum: number, l: any) => sum + (l.value || 0), 0)
   
-  const income = financialHealth.income || 0
-  const expenses = financialHealth.expenses || 0
+  const income = data.financialHealth.income || 0
+  const expenses = data.financialHealth.expenses || 0
   const monthlySavings = income - expenses
   const savingsRate = income > 0 ? (monthlySavings / income) * 100 : 0
   
   const cashAssets = assets.find((a: any) => a.type === 'cash')?.value || 0
   const emergencyFund = expenses > 0 ? cashAssets / expenses : 0
 
-  const trueCostCalculations = trueCost.calculations || []
-  const aiInsightsList = aiInsights.insights || []
-  const lifeContextGoals = lifeContext.goals || []
+  const trueCostCalculations = data.trueCost.calculations || []
+  const aiInsightsList = data.aiInsights.insights || []
+  const lifeContextGoals = data.lifeContext.goals || []
 
   return (
     <div className="space-y-6">
@@ -74,7 +134,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Avg. Fuel Cost</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(fuelCost.gasPrices?.regular)}</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatCurrency(data.fuelCost.gasPrices?.regular)}</p>
             </div>
             <Fuel className="h-6 w-6 text-gray-400" />
           </div>
@@ -198,8 +258,8 @@ export default function Dashboard() {
                 <div className="flex items-center space-x-3">
                   <Clock className="h-5 w-5 text-aegis-600" />
                   <div>
-                    <p className="font-medium text-gray-900">Time Value Analysis</p>
-                    <p className="text-sm text-gray-600">Opportunity costs</p>
+                    <p className="font-medium text-gray-900">Time Value Calculator</p>
+                    <p className="text-sm text-gray-600">Future value analysis</p>
                   </div>
                 </div>
               </button>
@@ -208,37 +268,38 @@ export default function Dashboard() {
 
           {/* AI Insights */}
           <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Zap className="h-5 w-5 mr-2 text-aegis-500" />
-              AI Insights
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-aegis-600" />
+              <span>AI Insights</span>
             </h3>
-            {aiInsightsList.length > 0 ? (
-              <div className="space-y-3">
-                {aiInsightsList.slice(0,3).map((insight: any) => (
-                    <div key={insight.id} className={`p-3 bg-${insight.color}-50 border border-${insight.color}-200 rounded-lg`}>
-                        <p className={`text-sm font-medium text-${insight.color}-800`}>{insight.title}</p>
-                        <p className={`text-xs text-${insight.color}-700`}>{insight.text}</p>
-                    </div>
-                ))}
-              </div>
-            ) : (
-                <p className="text-gray-500 text-center py-4">No AI insights generated yet.</p>
-            )}
+            <div className="space-y-3">
+              {aiInsightsList.length > 0 ? (
+                aiInsightsList.slice(0, 3).map((insight: any, index: number) => (
+                  <div key={index} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-900">{insight.message || insight}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No AI insights available yet.</p>
+              )}
+            </div>
           </div>
 
-          {/* Life Context Summary */}
+          {/* Life Context Goals */}
           <div className="bg-white rounded-lg shadow p-4 lg:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Life Context</h3>
-            {lifeContextGoals.length > 0 ? (
-              <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Primary Goal</span>
-                    <span className="text-sm font-medium text-gray-900">{lifeContextGoals[0].name}</span>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Life Context Goals</h3>
+            <div className="space-y-2">
+              {lifeContextGoals.length > 0 ? (
+                lifeContextGoals.slice(0, 3).map((goal: any, index: number) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-aegis-600 rounded-full"></div>
+                    <span className="text-sm text-gray-700">{goal.name || goal}</span>
                   </div>
-              </div>
-            ) : (
-                <p className="text-gray-500 text-center py-4">No life context defined yet.</p>
-            )}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No goals set yet.</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
