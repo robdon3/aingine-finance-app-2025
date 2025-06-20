@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { Shield, TrendingUp, Clock, DollarSign, Brain, Lock, Calculator, BarChart3, User, Settings, Database, MapPin, FileText, CheckCircle, Key, Fuel, Menu, X } from 'lucide-react'
-import { AuthProvider, useAuth, LoginForm, UserManager } from '../components/AuthManager'
+import { AuthProvider, useAuth, LoginForm } from '../components/AuthManager'
+import { UserManager } from '../components/UserManager'
 import Dashboard from '../components/Dashboard'
 import TimeValueCalculator from '../components/TimeValueCalculator'
 import TrueCostCalculator from '../components/TrueCostCalculator'
