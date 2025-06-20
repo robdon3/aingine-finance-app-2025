@@ -30,7 +30,7 @@ interface AuthContextType {
   currentUser: UserAccount | null
   isAuthenticated: boolean
   login: (username: string, password: string) => Promise<boolean>
-  register: (username: string, email: string, password: string) => Promise<boolean>
+  register: (username: string, email: string, password: string, storagePreference?: 'local' | 'cloud') => Promise<boolean>
   logout: () => void
   switchUser: (userId: string) => void
   updateUser: (updates: Partial<UserAccount>) => void
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false;
   };
 
-  const register = async (username: string, email: string, password: string): Promise<boolean> => {
+  const register = async (username: string, email: string, password: string, storagePreference: 'local' | 'cloud' = 'local'): Promise<boolean> => {
     const users = dataManager.getUsers();
     if (users.find(u => u.username === username)) return false;
 
@@ -138,8 +138,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currency: 'USD',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         notifications: true,
-        privacyLevel: 'local',
-        storagePreference: 'local',
+        privacyLevel: storagePreference,
+        storagePreference: storagePreference,
       },
       dataVersion: '1.1'
     };
@@ -242,35 +242,153 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
+  const [storagePreference, setStoragePreference] = useState<'local' | 'cloud'>('local');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     let success = false;
     if (isRegister) {
-      success = await register(username, email, password);
+      success = await register(username, email, password, storagePreference);
     } else {
       success = await login(username, password);
     }
+    
     if (!success) {
-      alert('Authentication failed');
+      setError(isRegister ? 'Registration failed. Username may already exist.' : 'Login failed. Check username and password.');
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+      <div className="w-full max-w-md space-y-8 bg-white rounded-lg shadow-lg p-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Project Aegis</h2>
-          <p className="mt-2 text-gray-600">{isRegister ? 'Create a new account' : 'Sign in to your account'}</p>
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <Shield className="h-8 w-8 text-aegis-600" />
+            <h2 className="text-3xl font-bold text-gray-900">Project Aegis</h2>
+          </div>
+          <p className="text-gray-600">{isRegister ? 'Create a new account' : 'Sign in to your account'}</p>
+          <p className="text-sm text-gray-500 mt-1">Engine for the People</p>
         </div>
+        
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" required className="aegis-input" />
-          {isRegister && <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required className="aegis-input" />}
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required className="aegis-input" />
-          <button type="submit" className="aegis-button-primary w-full">{isRegister ? 'Register' : 'Sign In'}</button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <input 
+              type="text" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              placeholder="Enter username" 
+              required 
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+            />
+          </div>
+          
+          {isRegister && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="Enter email" 
+                required 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+              />
+            </div>
+          )}
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              placeholder="Enter password" 
+              required 
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+            />
+            {!isRegister && (
+              <p className="text-xs text-gray-500 mt-1">Demo password: password</p>
+            )}
+          </div>
+
+          {isRegister && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Storage Preference
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStoragePreference('local')}
+                  className={`p-4 border rounded-lg text-left transition-colors ${
+                    storagePreference === 'local'
+                      ? 'border-aegis-500 bg-aegis-50 text-aegis-700'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Database className="h-4 w-4" />
+                    <span className="font-medium">Local Storage</span>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    Data stays on your device. Maximum privacy, works offline.
+                  </p>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setStoragePreference('cloud')}
+                  className={`p-4 border rounded-lg text-left transition-colors ${
+                    storagePreference === 'cloud'
+                      ? 'border-aegis-500 bg-aegis-50 text-aegis-700'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Globe className="h-4 w-4" />
+                    <span className="font-medium">Cloud Storage</span>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    Sync across devices. Automatic backups, access anywhere.
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+          
+          <button 
+            type="submit" 
+            className="w-full bg-aegis-600 hover:bg-aegis-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          >
+            {isRegister ? 'Create Account' : 'Sign In'}
+          </button>
         </form>
+        
         <div className="text-center">
-          <button onClick={() => setIsRegister(!isRegister)} className="text-sm text-aegis-600 hover:underline">
+          <button 
+            onClick={() => {
+              setIsRegister(!isRegister);
+              setError('');
+              setStoragePreference('local');
+            }} 
+            className="text-sm text-aegis-600 hover:text-aegis-700 hover:underline"
+          >
             {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register"}
           </button>
         </div>
