@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Shield, TrendingUp, Clock, DollarSign, Brain, Lock, Calculator, BarChart3, User, Settings, Database, MapPin, FileText, CheckCircle, Key, Fuel, Menu, X } from 'lucide-react'
+import { Shield, TrendingUp, Clock, DollarSign, Brain, Lock, Calculator, BarChart3, User, Settings, Database, MapPin, FileText, CheckCircle, Key, Fuel, Menu, X, Activity } from 'lucide-react'
 import { AuthProvider, useAuth, LoginForm } from '../components/AuthManager'
 import { UserManager } from '../components/UserManager'
 import { ThemeToggle } from '../components/ThemeProvider'
@@ -21,6 +21,7 @@ import FREDApiKeyManager from '../components/FREDApiKeyManager'
 import CensusAPIKeyManager from '../components/CensusAPIKeyManager'
 import TaxPolicyUpdater from '../components/TaxPolicyUpdater'
 import TaxDataValidator from '../components/TaxDataValidator'
+import MonitoringDashboard from '../components/MonitoringDashboard'
 
 // Tab configuration with categories
 const tabs = [
@@ -36,6 +37,7 @@ const tabs = [
   { id: 'life-context', name: 'Life Context', icon: Brain, category: 'secondary' },
   { id: 'location', name: 'Location', icon: MapPin, category: 'secondary' },
   { id: 'ai-insights', name: 'AI Insights', icon: Brain, category: 'secondary' },
+  { id: 'monitoring', name: 'System Monitoring', icon: Activity, category: 'secondary' },
   
   // Setup & Config - Infrequent Use
   { id: 'account-manager', name: 'Account Manager', icon: User, category: 'setup' },
@@ -213,6 +215,7 @@ function MainApp() {
             {activeTab === 'tax-policy' && <TaxPolicyUpdater />}
             {activeTab === 'tax-validator' && <TaxDataValidator />}
             {activeTab === 'privacy' && <PrivacyGuard />}
+            {activeTab === 'monitoring' && <MonitoringDashboard />}
           </div>
         </div>
       </div>

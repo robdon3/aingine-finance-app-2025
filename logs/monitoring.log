@@ -1,0 +1,5 @@
+[2025-06-20T08:21:09.676Z] [INFO] Starting Project Aegis monitoring system...
+[2025-06-20T08:21:09.677Z] [WARN] Vercel monitoring disabled - missing environment variables
+[2025-06-20T08:21:09.678Z] [WARN] Redis monitoring disabled - missing environment variables
+[2025-06-20T08:21:09.678Z] [WARN] GitHub monitoring disabled - missing environment variables
+[2025-06-20T08:21:09.678Z] [INFO] Monitoring system started successfully

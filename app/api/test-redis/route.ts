@@ -1,11 +1,25 @@
 import { Redis } from '@upstash/redis';
 import { NextResponse } from 'next/server';
 
-// Initialize Redis from environment variables
-const redis = Redis.fromEnv();
+// Initialize Redis from environment variables with fallback
+let redis: Redis | null = null;
+
+try {
+  redis = Redis.fromEnv();
+} catch (error) {
+  console.warn('Failed to initialize Redis from environment variables:', error);
+}
 
 export async function GET() {
   try {
+    if (!redis) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Redis not configured",
+        details: "UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables are required"
+      }, { status: 500 });
+    }
+
     // Test reading from Redis
     const testValue = await redis.get("test_key");
     
@@ -26,6 +40,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    if (!redis) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Redis not configured",
+        details: "UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables are required"
+      }, { status: 500 });
+    }
+
     const body = await request.json();
     const { key, value } = body;
 
