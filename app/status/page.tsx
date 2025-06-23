@@ -19,6 +19,9 @@ export default function StatusPage() {
     redis: { status: 'loading', message: 'Testing Redis connection...' },
     health: { status: 'loading' }
   });
+  const [redisUrlConfigured, setRedisUrlConfigured] = useState<string | null>(null);
+  const [redisTokenConfigured, setRedisTokenConfigured] = useState<string | null>(null);
+  const [buildTime, setBuildTime] = useState<string | null>(null);
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -69,6 +72,12 @@ export default function StatusPage() {
     };
 
     checkStatus();
+  }, []);
+
+  useEffect(() => {
+    setRedisUrlConfigured(process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_URL ? 'Yes' : 'No');
+    setRedisTokenConfigured(process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN ? 'Yes' : 'No');
+    setBuildTime(new Date().toLocaleString());
   }, []);
 
   const getStatusColor = (status: string) => {
@@ -137,13 +146,13 @@ export default function StatusPage() {
                   <strong>Node Environment:</strong> {process.env.NODE_ENV || 'development'}
                 </div>
                 <div>
-                  <strong>Redis URL Configured:</strong> {process.env.UPSTASH_REDIS_REST_URL ? 'Yes' : 'No'}
+                  <strong>Redis URL Configured:</strong> {redisUrlConfigured ?? 'Checking...'}
                 </div>
                 <div>
-                  <strong>Redis Token Configured:</strong> {process.env.UPSTASH_REDIS_REST_TOKEN ? 'Yes' : 'No'}
+                  <strong>Redis Token Configured:</strong> {redisTokenConfigured ?? 'Checking...'}
                 </div>
                 <div>
-                  <strong>Build Time:</strong> {new Date().toLocaleString()}
+                  <strong>Build Time:</strong> {buildTime ?? 'Loading...'}
                 </div>
               </div>
             </div>
