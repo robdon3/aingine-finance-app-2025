@@ -30,7 +30,7 @@ export interface StateGasPrice {
 
 export class GasPriceService {
   private static instance: GasPriceService
-  private cache: Map<string, { data: GasPriceData; timestamp: number }> = new Map()
+  private cache: Map<string, { data: GasPriceData | StateGasPrice[]; timestamp: number }> = new Map()
   private readonly CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
   static getInstance(): GasPriceService {
@@ -45,21 +45,21 @@ export class GasPriceService {
     const cached = this.cache.get(cacheKey)
     
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-      return cached.data
+      return cached.data as GasPriceData
     }
 
     try {
       // Try multiple sources for redundancy
       const data = await this.fetchFromAAADirect()
       this.cache.set(cacheKey, { data, timestamp: Date.now() })
-      return data
+      return data as GasPriceData
     } catch (error) {
       console.error('Failed to fetch gas prices from AAA:', error)
       
       // Fallback to alternative sources or cached data
       if (cached) {
         console.log('Using cached gas price data')
-        return cached.data
+        return cached.data as GasPriceData
       }
       
       // Final fallback with current AAA data
@@ -82,12 +82,15 @@ export class GasPriceService {
     const cached = this.cache.get(cacheKey)
     
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-      return cached.data as unknown
+      if (Array.isArray(cached.data) && cached.data.every(item => typeof item === 'object' && 'state' in item && 'code' in item)) {
+        return cached.data as StateGasPrice[];
+      }
+      return [];
     }
 
     try {
       const states = await this.fetchStatePricesFromAAA()
-      this.cache.set(cacheKey, { data: states as unknown, timestamp: Date.now() })
+      this.cache.set(cacheKey, { data: states, timestamp: Date.now() })
       return states
     } catch (error) {
       console.error('Failed to fetch state gas prices:', error)
