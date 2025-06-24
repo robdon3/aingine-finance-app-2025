@@ -164,7 +164,7 @@ export default function FuelCostManager() {
         <div className="aegis-card">
           <div className="flex items-center justify-center py-8">
             <RefreshCw className="h-6 w-6 text-aegis-600 animate-spin" />
-            <span className="ml-2 text-gray-600">Loading fuel cost data...</span>
+            <span className="ml-2 text-gray-700 dark:text-gray-300">Loading fuel cost data...</span>
           </div>
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function FuelCostManager() {
     <div className="p-4 lg:p-6 space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Fuel Cost Manager</h2>
-        <p className="text-gray-600">
+        <p className="text-gray-700 dark:text-gray-300">
           Track gas prices and calculate fuel costs for your trips and daily driving.
         </p>
       </div>
@@ -212,7 +212,7 @@ export default function FuelCostManager() {
           className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'prices'
               ? 'bg-white text-aegis-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
           }`}
         >
           <Fuel className="h-4 w-4" />
@@ -223,7 +223,7 @@ export default function FuelCostManager() {
           className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'trip-calculator'
               ? 'bg-white text-aegis-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
           }`}
         >
           <Route className="h-4 w-4" />
@@ -264,26 +264,26 @@ export default function FuelCostManager() {
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-sm text-blue-600 font-medium">Regular</div>
                 <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.regular)}</div>
-                <div className="text-xs text-gray-500">per gallon</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <div className="text-sm text-green-600 font-medium">Mid-Grade</div>
                 <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.midgrade)}</div>
-                <div className="text-xs text-gray-500">per gallon</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
               </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-sm text-purple-600 font-medium">Premium</div>
                 <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.premium)}</div>
-                <div className="text-xs text-gray-500">per gallon</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
               </div>
               <div className="text-center p-3 bg-orange-50 rounded-lg">
                 <div className="text-sm text-orange-600 font-medium">Diesel</div>
                 <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.diesel)}</div>
-                <div className="text-xs text-gray-500">per gallon</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
               </div>
             </div>
 
-            <div className="text-xs text-gray-500 text-center">
+            <div className="text-xs text-gray-600 dark:text-gray-400 text-center">
               Last updated: {new Date(nationalData.lastUpdated).toLocaleString()}
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function FuelCostManager() {
                   const change = nationalData.regular - period.value
                   return (
                     <div key={period.label} className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600">{period.label}</div>
+                      <div className="text-sm text-gray-700 dark:text-gray-300">{period.label}</div>
                       <div className="text-lg font-semibold text-gray-900">{formatPrice(period.value)}</div>
                       <div className="flex items-center justify-center space-x-1 text-xs">
                         {getTrendIcon(nationalData.regular, period.value)}
@@ -330,7 +330,7 @@ export default function FuelCostManager() {
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <div className="text-sm text-blue-600 font-medium">Local Regular</div>
                   <div className="text-lg font-semibold text-gray-900">{formatPrice(stateData.regular)}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {stateData.regular > nationalData.regular ? '+' : ''}
                     {(stateData.regular - nationalData.regular).toFixed(3)} vs national
                   </div>
@@ -338,7 +338,7 @@ export default function FuelCostManager() {
                 <div className="text-center p-3 bg-purple-50 rounded-lg">
                   <div className="text-sm text-purple-600 font-medium">Local Premium</div>
                   <div className="text-lg font-semibold text-gray-900">{formatPrice(stateData.premium)}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {stateData.premium > nationalData.premium ? '+' : ''}
                     {(stateData.premium - nationalData.premium).toFixed(3)} vs national
                   </div>

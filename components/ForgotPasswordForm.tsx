@@ -70,7 +70,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             Forgot Password
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-700 dark:text-gray-300">
             Enter your email address and we&apos;ll generate a password reset link for you.
           </p>
         </div>

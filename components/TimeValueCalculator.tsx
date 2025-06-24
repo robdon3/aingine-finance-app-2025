@@ -67,7 +67,7 @@ export default function TimeValueCalculator() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Time Value Calculator</h2>
-        <p className="text-gray-600">
+        <p className="text-gray-700 dark:text-gray-300">
           Understand the true cost of your purchases in terms of time worked and future value lost.
         </p>
       </div>
@@ -161,7 +161,7 @@ export default function TimeValueCalculator() {
           </h3>
 
           {calculations.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-600 dark:text-gray-400">
               <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <p>No calculations yet. Add an item to see its time value.</p>
             </div>
@@ -171,25 +171,25 @@ export default function TimeValueCalculator() {
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold text-gray-900">{calc.item}</h4>
-                    <span className="text-sm text-gray-500">${calc.cost.toLocaleString()}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">${calc.cost.toLocaleString()}</span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Time Cost:</span>
+                      <span className="text-gray-700 dark:text-gray-300">Time Cost:</span>
                       <div className={`time-value-indicator ${getTimeValueClass(calc.timeCost)}`}>
                         {formatTime(calc.timeCost)}
                       </div>
                     </div>
                     <div>
-                      <span className="text-gray-600">Future Value:</span>
+                      <span className="text-gray-700 dark:text-gray-300">Future Value:</span>
                       <div className="font-semibold text-liberty-600">
                         ${calc.futureValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                       </div>
                     </div>
                   </div>
                   
-                  <div className="mt-2 text-xs text-gray-500">
+                  <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                     Based on ${calc.hourlyWage}/hr wage, {calc.years} years, {calc.interestRate}% interest
                   </div>
                 </div>
@@ -209,15 +209,15 @@ export default function TimeValueCalculator() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <div className="text-green-600 font-semibold mb-1">Time is Money</div>
-            <div className="text-gray-600">Every purchase costs you time worked</div>
+            <div className="text-gray-700 dark:text-gray-300">Every purchase costs you time worked</div>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <div className="text-blue-600 font-semibold mb-1">Compound Interest</div>
-            <div className="text-gray-600">Money saved today grows exponentially</div>
+            <div className="text-gray-700 dark:text-gray-300">Money saved today grows exponentially</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <div className="text-purple-600 font-semibold mb-1">Opportunity Cost</div>
-            <div className="text-gray-600">Every dollar spent is a dollar not invested</div>
+            <div className="text-gray-700 dark:text-gray-300">Every dollar spent is a dollar not invested</div>
           </div>
         </div>
       </div>

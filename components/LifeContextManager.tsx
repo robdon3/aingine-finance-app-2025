@@ -206,7 +206,7 @@ export default function LifeContextManager() {
       case 'high': return 'text-red-600 bg-red-50'
       case 'medium': return 'text-yellow-600 bg-yellow-50'
       case 'low': return 'text-green-600 bg-green-50'
-      default: return 'text-gray-600 bg-gray-50'
+      default: return 'text-gray-700 bg-gray-50'
     }
   }
 
@@ -214,8 +214,8 @@ export default function LifeContextManager() {
     switch (status) {
       case 'completed': return 'text-green-600 bg-green-50'
       case 'in-progress': return 'text-blue-600 bg-blue-50'
-      case 'not-started': return 'text-gray-600 bg-gray-50'
-      default: return 'text-gray-600 bg-gray-50'
+      case 'not-started': return 'text-gray-700 bg-gray-50'
+      default: return 'text-gray-700 bg-gray-50'
     }
   }
 
@@ -250,13 +250,13 @@ export default function LifeContextManager() {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-600 mb-2">{stage.description}</p>
-              <div className="text-xs text-gray-500">{stage.ageRange}</div>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{stage.description}</p>
+              <div className="text-xs text-gray-600 dark:text-gray-400">{stage.ageRange}</div>
               
               {stage.isActive && (
                 <div className="mt-3">
                   <div className="text-xs font-medium text-gray-700 mb-1">Key Priorities:</div>
-                  <ul className="text-xs text-gray-600 space-y-1">
+                  <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                     {stage.financialPriorities.slice(0, 2).map((priority, index) => (
                       <li key={index}>• {priority}</li>
                     ))}
@@ -292,19 +292,19 @@ export default function LifeContextManager() {
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{goal.description}</p>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Target Date:</span>
+                      <span className="text-gray-700 dark:text-gray-300">Target Date:</span>
                       <span className="font-medium">{goal.targetDate}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Estimated Cost:</span>
+                      <span className="text-gray-700 dark:text-gray-300">Estimated Cost:</span>
                       <span className="font-medium">${goal.estimatedCost.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Progress:</span>
+                      <span className="text-gray-700 dark:text-gray-300">Progress:</span>
                       <span className="font-medium">{goal.progress}%</span>
                     </div>
                   </div>
@@ -340,7 +340,7 @@ export default function LifeContextManager() {
               }`}>
                 <GraduationCap className={`h-6 w-6 ${
                   edu.status === 'completed' ? 'text-green-600' :
-                  edu.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400'
+                  edu.status === 'in-progress' ? 'text-blue-600' : 'text-gray-500'
                 }`} />
               </div>
               
@@ -351,19 +351,19 @@ export default function LifeContextManager() {
                     {edu.status}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{edu.institution}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{edu.institution}</p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Duration:</span>
+                    <span className="text-gray-700 dark:text-gray-300">Duration:</span>
                     <span className="ml-2 font-medium">{edu.startDate} - {edu.endDate}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Cost:</span>
+                    <span className="text-gray-700 dark:text-gray-300">Cost:</span>
                     <span className="ml-2 font-medium">${edu.cost.toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="mt-2 text-sm">
-                  <span className="text-gray-600">Impact:</span>
+                  <span className="text-gray-700 dark:text-gray-300">Impact:</span>
                   <span className="ml-2 text-gray-900">{edu.impact}</span>
                 </div>
               </div>
@@ -384,19 +384,19 @@ export default function LifeContextManager() {
             <h4 className="font-semibold text-gray-900 mb-3">Family Status</h4>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">Marital Status:</span>
+                <span className="text-gray-700 dark:text-gray-300">Marital Status:</span>
                 <span className="font-medium capitalize">{familyContext.maritalStatus}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Children:</span>
+                <span className="text-gray-700 dark:text-gray-300">Children:</span>
                 <span className="font-medium">{familyContext.children}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Planning Children:</span>
+                <span className="text-gray-700 dark:text-gray-300">Planning Children:</span>
                 <span className="font-medium">{familyContext.planningChildren ? 'Yes' : 'No'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Dependents:</span>
+                <span className="text-gray-700 dark:text-gray-300">Dependents:</span>
                 <span className="font-medium">{familyContext.dependents}</span>
               </div>
             </div>
@@ -409,11 +409,11 @@ export default function LifeContextManager() {
                 familyContext.familyGoals.map((goal, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                    <span className="text-sm text-gray-700">{goal}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{goal}</span>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No family goals set yet</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">No family goals set yet</p>
               )}
             </div>
           </div>
@@ -428,21 +428,21 @@ export default function LifeContextManager() {
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <GraduationCap className="h-8 w-8 text-blue-600 mx-auto mb-2" />
             <div className="text-blue-600 font-semibold mb-1">Education Impact</div>
-            <div className="text-gray-600">
+            <div className="text-gray-700 dark:text-gray-300">
               {educationPath.filter(e => e.status === 'completed').length} degrees completed
             </div>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <Target className="h-8 w-8 text-green-600 mx-auto mb-2" />
             <div className="text-green-600 font-semibold mb-1">Goal Progress</div>
-            <div className="text-gray-600">
+            <div className="text-gray-700 dark:text-gray-300">
               {lifeGoals.filter(g => g.status === 'completed').length} of {lifeGoals.length} goals achieved
             </div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-2" />
             <div className="text-purple-600 font-semibold mb-1">Life Stage</div>
-            <div className="text-gray-600">
+            <div className="text-gray-700 dark:text-gray-300">
               {lifeStages.find(s => s.isActive)?.name || 'Transitioning'}
             </div>
           </div>

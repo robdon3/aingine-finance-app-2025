@@ -96,8 +96,8 @@ function MainApp() {
               <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Engine for the People</p>
-          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">Engine for the People</p>
+          <div className="mt-2 text-xs text-gray-700 dark:text-gray-300">
             User: {currentUser?.username}
           </div>
         </div>
@@ -105,7 +105,7 @@ function MainApp() {
         <nav className="mt-4">
           {/* Primary Features - Most Popular */}
           <div className="px-4 py-1">
-            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
               🔥 Most Used
             </div>
             {tabs.filter(tab => tab.category === 'primary').map((tab) => (
@@ -127,7 +127,7 @@ function MainApp() {
 
           {/* Secondary Features - Regular Use */}
           <div className="px-4 py-1 mt-2">
-            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
               📊 Regular Use
             </div>
             {tabs.filter(tab => tab.category === 'secondary').map((tab) => (
@@ -149,7 +149,7 @@ function MainApp() {
 
           {/* Setup & Config - Infrequent Use */}
           <div className="px-4 py-1 mt-2">
-            <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1">
               ⚙️ Setup & Config
             </div>
             {tabs.filter(tab => tab.category === 'setup').map((tab) => (
@@ -190,7 +190,7 @@ function MainApp() {
             </div>
             <div className="flex items-center space-x-2">
               <ThemeToggle />
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 {currentUser?.username}
               </div>
             </div>

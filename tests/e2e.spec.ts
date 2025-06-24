@@ -1,15 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 function randomString(length = 8) {
-  return Math.random().toString(36).substring(2, 2 + length);
+  return Math.random().toString(36).substring(2, length + 2);
 }
 
 test.describe('Aingen App E2E', () => {
   test('Homepage loads and login form is visible', async ({ page }) => {
     await page.goto('/');
+    
+    // Check that the login form is visible
+    await expect(page.getByText('Aingen')).toBeVisible();
     await expect(page.getByText('Sign in to your account')).toBeVisible();
-    await expect(page.locator('input[type="text"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await expect(page.getByLabel('Username')).toBeVisible();
+    await expect(page.getByLabel('Password')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
   });
 
@@ -110,9 +113,9 @@ test.describe('Aingen App E2E', () => {
     
     // Test navigation to each major feature
     const features = [
-      { name: 'Fuel Cost', expectedText: 'Fuel Cost Management' },
+      { name: 'Fuel Cost', expectedText: 'Fuel Cost Manager' },
       { name: 'True Cost Calculator', expectedText: 'True Cost Calculator' },
-      { name: 'Financial Health', expectedText: 'Financial Health Dashboard' },
+      { name: 'Financial Health', expectedText: 'Financial Dashboard' },
       { name: 'Net Worth Tracker', expectedText: 'Net Worth Tracker' },
       { name: 'Time Value', expectedText: 'Time Value Calculator' },
       { name: 'Life Context', expectedText: 'Life Context Manager' },
@@ -155,7 +158,7 @@ test.describe('Aingen App E2E', () => {
     // Test quick action buttons
     const quickActions = [
       { button: 'Calculate True Cost', expectedTab: 'True Cost Calculator' },
-      { button: 'Check Fuel Prices', expectedTab: 'Fuel Cost Management' },
+      { button: 'Check Fuel Prices', expectedTab: 'Fuel Cost Manager' },
       { button: 'Time Value Calculator', expectedTab: 'Time Value Calculator' }
     ];
     

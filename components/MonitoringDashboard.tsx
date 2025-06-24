@@ -143,7 +143,7 @@ export default function MonitoringDashboard() {
       <div className="p-4 lg:p-6">
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="h-6 w-6 text-aegis-600 animate-spin" />
-          <span className="ml-2 text-gray-600 dark:text-gray-400">Loading monitoring data...</span>
+          <span className="ml-2 text-gray-700 dark:text-gray-300">Loading monitoring data...</span>
         </div>
       </div>
     )
@@ -154,11 +154,11 @@ export default function MonitoringDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">System Monitoring</h2>
-          <p className="text-gray-600 dark:text-gray-400">Real-time health status of your infrastructure</p>
+          <p className="text-gray-700 dark:text-gray-300">Real-time health status of your infrastructure</p>
         </div>
         <div className="flex items-center space-x-3">
           {lastRefresh && (
-            <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center space-x-1">
+            <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-1">
               <Clock className="h-4 w-4" />
               <span>Last updated: {lastRefresh.toLocaleTimeString()}</span>
             </div>
@@ -168,7 +168,7 @@ export default function MonitoringDashboard() {
             disabled={loading}
             className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
-            <RefreshCw className={`h-4 w-4 text-gray-600 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 text-gray-700 dark:text-gray-300 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function MonitoringDashboard() {
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {healthReport.summary.healthy}/{healthReport.summary.healthy + healthReport.summary.warning + healthReport.summary.error}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Services Healthy</div>
+              <div className="text-sm text-gray-700 dark:text-gray-300">Services Healthy</div>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function MonitoringDashboard() {
           
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Status:</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Status:</span>
               <span className={`text-sm font-medium ${getStatusColor(healthReport?.services.vercel.status || 'unknown')}`}>
                 {healthReport?.services.vercel.status || 'Unknown'}
               </span>
@@ -221,13 +221,13 @@ export default function MonitoringDashboard() {
             {healthReport?.services.vercel.details && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Latest Deployment:</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Latest Deployment:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
                     {(healthReport.services.vercel.details as VercelDetails).latestDeployment}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Total Deployments:</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Total Deployments:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
                     {(healthReport.services.vercel.details as VercelDetails).totalDeployments}
                   </span>
@@ -236,7 +236,7 @@ export default function MonitoringDashboard() {
             )}
             
             {healthReport?.services.vercel.lastCheck && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                 Last check: {new Date(healthReport.services.vercel.lastCheck).toLocaleTimeString()}
               </div>
             )}
@@ -255,7 +255,7 @@ export default function MonitoringDashboard() {
           
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Status:</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Status:</span>
               <span className={`text-sm font-medium ${getStatusColor(healthReport?.services.redis.status || 'unknown')}`}>
                 {healthReport?.services.redis.status || 'Unknown'}
               </span>
@@ -264,13 +264,13 @@ export default function MonitoringDashboard() {
             {healthReport?.services.redis.details && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Connection:</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Connection:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
                     {(healthReport.services.redis.details as RedisDetails).connection}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Operations:</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Operations:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
                     {(healthReport.services.redis.details as RedisDetails).operations}
                   </span>
@@ -279,7 +279,7 @@ export default function MonitoringDashboard() {
             )}
             
             {healthReport?.services.redis.lastCheck && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                 Last check: {new Date(healthReport.services.redis.lastCheck).toLocaleTimeString()}
               </div>
             )}
@@ -298,7 +298,7 @@ export default function MonitoringDashboard() {
           
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Status:</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Status:</span>
               <span className={`text-sm font-medium ${getStatusColor(healthReport?.services.github.status || 'unknown')}`}>
                 {healthReport?.services.github.status || 'Unknown'}
               </span>
@@ -307,25 +307,25 @@ export default function MonitoringDashboard() {
             {healthReport?.services.github.details && (
               <>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Repository:</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Repository:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
                     {(healthReport.services.github.details as GitHubDetails).repository}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Visibility:</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Visibility:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
                     {(healthReport.services.github.details as GitHubDetails).visibility}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
                   Last commit: {(healthReport.services.github.details as GitHubDetails).lastCommit}
                 </div>
               </>
             )}
             
             {healthReport?.services.github.lastCheck && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                 Last check: {new Date(healthReport.services.github.lastCheck).toLocaleTimeString()}
               </div>
             )}
@@ -345,28 +345,28 @@ export default function MonitoringDashboard() {
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {healthReport?.summary.healthy || 0}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Healthy Services</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">Healthy Services</div>
           </div>
           
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
               {healthReport?.summary.warning || 0}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Warnings</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">Warnings</div>
           </div>
           
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
               {healthReport?.summary.error || 0}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Errors</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">Errors</div>
           </div>
           
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
               {healthReport?.summary.unknown || 0}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Unknown</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">Unknown</div>
           </div>
         </div>
       </div>

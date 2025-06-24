@@ -81,7 +81,7 @@ export default function Dashboard() {
       <div className="p-4 lg:p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Your Agency Dashboard</h2>
-          <p className="text-gray-600 dark:text-gray-400">Loading your data...</p>
+          <p className="text-gray-700 dark:text-gray-300">Loading your data...</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
@@ -219,7 +219,7 @@ export default function Dashboard() {
                       </div>
                       <div className="sm:text-right mt-2 sm:mt-0">
                         <p className="font-bold text-red-700 dark:text-red-400">True Cost: {formatCurrency(calcData.trueCost)}</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="text-xs text-gray-700 dark:text-gray-300">
                           {calcData.stickerPrice && calcData.stickerPrice > 0 
                             ? `+${(((calcData.trueCost || 0) - calcData.stickerPrice) / calcData.stickerPrice * 100).toFixed(1)}% hidden costs`
                             : 'Invalid sticker price'}
@@ -229,7 +229,7 @@ export default function Dashboard() {
                   )
                 })
               ) : (
-                <p className="text-gray-600 dark:text-gray-400 text-center py-4">No True Cost analyses performed yet.</p>
+                <p className="text-gray-700 dark:text-gray-300 text-center py-4">No True Cost analyses performed yet.</p>
               )}
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Net Worth Trend</h3>
             <div className="h-48 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <p className="text-gray-600 dark:text-gray-400">Chart placeholder - Net worth over time</p>
+              <p className="text-gray-700 dark:text-gray-300">Chart placeholder - Net worth over time</p>
             </div>
           </div>
         </div>
@@ -307,7 +307,7 @@ export default function Dashboard() {
                   )
                 })
               ) : (
-                <p className="text-gray-600 dark:text-gray-400 text-center py-4">No AI insights available yet.</p>
+                <p className="text-gray-700 dark:text-gray-300 text-center py-4">No AI insights available yet.</p>
               )}
             </div>
           </div>
@@ -329,7 +329,7 @@ export default function Dashboard() {
                   )
                 })
               ) : (
-                <p className="text-gray-600 dark:text-gray-400 text-center py-4">No goals set yet.</p>
+                <p className="text-gray-700 dark:text-gray-300 text-center py-4">No goals set yet.</p>
               )}
             </div>
           </div>

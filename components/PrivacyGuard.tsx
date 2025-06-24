@@ -66,13 +66,13 @@ export default function PrivacyGuard() {
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">Privacy Status: Secure</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
               All data processing happens locally on your device. No data is transmitted to external servers.
             </p>
           </div>
           <div className="text-right">
             <div className="text-sm font-medium text-green-600">100% Private</div>
-            <div className="text-xs text-gray-500">No external access</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">No external access</div>
           </div>
         </div>
       </div>
@@ -92,8 +92,8 @@ export default function PrivacyGuard() {
                   }`} />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
-                  <p className="text-sm text-gray-600">{feature.description}</p>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{feature.title}</h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{feature.description}</p>
                   <div className="mt-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                       feature.status === 'active' 
@@ -131,7 +131,7 @@ export default function PrivacyGuard() {
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <div className="font-medium text-gray-900">{dataType.type}</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
                     Stored: {dataType.stored}
                   </div>
                 </div>
@@ -140,10 +140,10 @@ export default function PrivacyGuard() {
                     {dataType.encrypted ? (
                       <Lock className="h-4 w-4 text-green-600" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4 text-gray-500" />
                     )}
                     <span className={`text-sm font-medium ${
-                      dataType.encrypted ? 'text-green-600' : 'text-gray-500'
+                      dataType.encrypted ? 'text-green-600' : 'text-gray-600'
                     }`}>
                       {dataType.encrypted ? 'Encrypted' : 'Not Stored'}
                     </span>
@@ -166,8 +166,8 @@ export default function PrivacyGuard() {
                 <Shield className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Data Sovereignty</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">Data Sovereignty</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   You own your data completely. We provide tools to help you manage it, but never claim ownership.
                 </p>
               </div>
@@ -178,8 +178,8 @@ export default function PrivacyGuard() {
                 <Lock className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Local Processing</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">Local Processing</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   All AI analysis and data processing happens on your device, ensuring complete privacy.
                 </p>
               </div>
@@ -193,7 +193,7 @@ export default function PrivacyGuard() {
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">No Surveillance</h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   We don&apos;t track your behavior, collect analytics, or build profiles of your activities.
                 </p>
               </div>
@@ -205,7 +205,7 @@ export default function PrivacyGuard() {
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">Transparency</h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   Open source code and clear documentation of how your data is handled.
                 </p>
               </div>
@@ -219,12 +219,12 @@ export default function PrivacyGuard() {
         <div className="text-center">
           <Shield className="h-12 w-12 text-aegis-600 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-gray-900 mb-2">Our Commitment to You</h3>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
             Aingen is built on the principle that technology should serve human flourishing, 
             not extract value from human attention. Your privacy is not a feature—it&apos;s the foundation 
             of everything we build.
           </p>
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">
             &quot;We hold these truths to be self-evident, that all people are endowed with certain unalienable rights...&quot;
           </div>
         </div>

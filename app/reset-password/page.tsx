@@ -90,7 +90,7 @@ function ResetPasswordForm() {
             <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Invalid Reset Link
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
               {message}
             </p>
             <button 
@@ -116,11 +116,9 @@ function ResetPasswordForm() {
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             Reset Password
           </h3>
-          {email && (
-            <p className="text-gray-600 dark:text-gray-400">
-              Reset password for: <span className="font-medium">{email}</span>
-            </p>
-          )}
+          <p className="text-gray-700 dark:text-gray-300">
+            Reset password for: <span className="font-medium">{email}</span>
+          </p>
         </div>
         
         {!isSuccess ? (
@@ -138,7 +136,7 @@ function ResetPasswordForm() {
                 disabled={isLoading}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                 Password must be at least 6 characters long
               </p>
             </div>
@@ -214,7 +212,7 @@ export default function ResetPasswordPage() {
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-aegis-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="mt-2 text-gray-700 dark:text-gray-300">Loading...</p>
         </div>
       </div>
     }>

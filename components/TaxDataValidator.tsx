@@ -227,7 +227,7 @@ export default function TaxDataValidator() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Tax Data Validator</h2>
-        <p className="text-gray-600">Verify your local tax data against authoritative government sources.</p>
+        <p className="text-gray-700 dark:text-gray-300">Verify your local tax data against authoritative government sources.</p>
       </div>
 
       {/* Data Sources */}
@@ -250,9 +250,9 @@ export default function TaxDataValidator() {
                   {source.status}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{source.description}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{source.description}</p>
               {source.rateLimit && (
-                <p className="text-xs text-gray-500 mb-2">Rate limit: {source.rateLimit}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Rate limit: {source.rateLimit}</p>
               )}
               <div className="flex items-center space-x-2">
                 <a
@@ -315,9 +315,9 @@ export default function TaxDataValidator() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="font-semibold text-gray-900">{validation.locationName}</h4>
-                    <p className="text-sm text-gray-600">Data source: {validation.dataSource}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Data source: {validation.dataSource}</p>
                     {validation.verifiedOnline.notes && (
-                      <p className="text-xs text-gray-500 mt-1">{validation.verifiedOnline.notes}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{validation.verifiedOnline.notes}</p>
                     )}
                   </div>
                   <div className="flex items-center space-x-2">
@@ -375,7 +375,7 @@ export default function TaxDataValidator() {
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Last verified:</span> {new Date(validation.verifiedOnline.lastUpdated).toLocaleDateString()}
                   </div>
                   

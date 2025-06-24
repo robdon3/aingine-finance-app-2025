@@ -418,8 +418,8 @@ export function LoginForm() {
             <Shield className="h-8 w-8 text-aegis-600" />
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Aingen</h2>
           </div>
-          <p className="text-gray-600 dark:text-gray-400">{isRegister ? 'Create a new account' : 'Sign in to your account'}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Engine for the People</p>
+          <p className="text-gray-700 dark:text-gray-300">{isRegister ? 'Create a new account' : 'Sign in to your account'}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Engine for the People</p>
         </div>
         
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -469,7 +469,7 @@ export function LoginForm() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
             />
             {isRegister && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                 Password must be at least 6 characters long
               </p>
             )}

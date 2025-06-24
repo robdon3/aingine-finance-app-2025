@@ -299,7 +299,7 @@ export default function TrueCostCalculator() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">True Cost Calculator</h2>
-          <p className="text-gray-600">
+          <p className="text-gray-700 dark:text-gray-300">
             Calculate the real cost of ownership including hidden expenses and opportunity costs.
           </p>
         </div>

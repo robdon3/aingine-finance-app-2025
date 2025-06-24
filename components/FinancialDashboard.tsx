@@ -111,7 +111,7 @@ export default function FinancialDashboard() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Financial Dashboard</h2>
-        <p className="text-gray-600">
+        <p className="text-gray-700 dark:text-gray-300">
           Track your financial health and identify opportunities for optimization.
         </p>
       </div>
@@ -121,7 +121,7 @@ export default function FinancialDashboard() {
         <div className="aegis-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Balance</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Balance</p>
               <p className="text-2xl font-bold text-gray-900">
                 ${latestData?.balance.toLocaleString() || '0'}
               </p>
@@ -143,7 +143,7 @@ export default function FinancialDashboard() {
         <div className="aegis-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Monthly Income</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Monthly Income</p>
               <p className="text-2xl font-bold text-green-600">
                 ${latestData?.income.toLocaleString() || '0'}
               </p>
@@ -155,7 +155,7 @@ export default function FinancialDashboard() {
         <div className="aegis-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Monthly Expenses</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Monthly Expenses</p>
               <p className="text-2xl font-bold text-red-600">
                 ${latestData?.expenses.toLocaleString() || '0'}
               </p>
@@ -167,7 +167,7 @@ export default function FinancialDashboard() {
         <div className="aegis-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Savings Rate</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Savings Rate</p>
               <p className="text-2xl font-bold text-liberty-600">
                 {latestData ? ((latestData.savings / latestData.income) * 100).toFixed(1) : '0'}%
               </p>
@@ -188,7 +188,7 @@ export default function FinancialDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Current Balance
                 </label>
                 <input
@@ -200,7 +200,7 @@ export default function FinancialDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Monthly Income
                 </label>
                 <input
@@ -215,7 +215,7 @@ export default function FinancialDashboard() {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Expenses
                 </label>
                 <input
@@ -227,7 +227,7 @@ export default function FinancialDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Investments
                 </label>
                 <input
@@ -239,7 +239,7 @@ export default function FinancialDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Savings
                 </label>
                 <input
@@ -276,7 +276,7 @@ export default function FinancialDashboard() {
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: category.color }}
                   />
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {category.name}
                   </span>
                 </div>
@@ -284,7 +284,7 @@ export default function FinancialDashboard() {
                   <div className="text-sm font-semibold text-gray-900">
                     ${category.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {category.percentage}%
                   </div>
                 </div>
@@ -301,19 +301,19 @@ export default function FinancialDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <div className="text-green-600 font-semibold mb-1">Emergency Fund</div>
-            <div className="text-gray-600">
+            <div className="text-gray-700 dark:text-gray-300">
               {latestData ? Math.round(latestData.balance / latestData.expenses) : 0} months of expenses
             </div>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <div className="text-blue-600 font-semibold mb-1">Investment Rate</div>
-            <div className="text-gray-600">
+            <div className="text-gray-700 dark:text-gray-300">
               {latestData ? ((latestData.investments / latestData.income) * 100).toFixed(1) : '0'}% of income
             </div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <div className="text-purple-600 font-semibold mb-1">Debt-to-Income</div>
-            <div className="text-gray-600">
+            <div className="text-gray-700 dark:text-gray-300">
               {latestData ? ((latestData.expenses / latestData.income) * 100).toFixed(1) : '0'}% ratio
             </div>
           </div>
