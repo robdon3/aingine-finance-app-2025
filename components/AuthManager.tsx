@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false;
   };
 
-  const register = async (username: string, email: string, password: string, storagePreference: 'local' | 'cloud' = 'local'): Promise<boolean> => {
+  const register = async (username: string, email: string, password: string, storagePreference: 'local' | 'cloud' = 'cloud'): Promise<boolean> => {
     const users = await dataManager.getUsers();
     if (users.find(u => u.username === username)) return false;
 
@@ -263,7 +263,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
-  const [storagePreference, setStoragePreference] = useState<'local' | 'cloud'>('local');
+  const [storagePreference, setStoragePreference] = useState<'local' | 'cloud'>('cloud');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -406,7 +406,7 @@ export function LoginForm() {
             onClick={() => {
               setIsRegister(!isRegister);
               setError('');
-              setStoragePreference('local');
+              setStoragePreference('cloud');
             }} 
             className="text-sm text-aegis-600 dark:text-aegis-400 hover:text-aegis-700 dark:hover:text-aegis-300 hover:underline"
           >
