@@ -184,11 +184,11 @@ export default function TestStoragePage() {
                   </button>
                 </div>
               </div>
-              {userData && (
+              {userData !== null && userData !== undefined && (
                 <div className="mt-3">
                   <h3 className="font-medium mb-2">User Data:</h3>
                   <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
-                    {JSON.stringify(userData, null, 2)}
+                    {JSON.stringify(userData, null, 2) ?? ''}
                   </pre>
                 </div>
               )}
