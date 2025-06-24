@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { storageManager } from '../lib/storageManager'
 import { Shield, Database, Globe } from 'lucide-react'
 import { sha256 } from 'js-sha256'
+import { ForgotPasswordForm } from './ForgotPasswordForm'
 
 // Types
 export interface UserAccount {
@@ -43,6 +44,7 @@ interface AuthContextType {
   getUserData: (userId: string) => Promise<unknown>
   updateUserDataSection: (userId: string, section: string, data: unknown) => Promise<unknown>
   migrateLegacyData: () => boolean
+  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string }>
 }
 
 // Create Auth Context
@@ -298,6 +300,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return allData;
   };
 
+  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      return { 
+        success: false, 
+        error: 'An error occurred while processing your request' 
+      };
+    }
+  };
+
   const value: AuthContextType = {
     currentUser,
     isAuthenticated,
@@ -313,6 +336,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getUserData,
     updateUserDataSection,
     migrateLegacyData,
+    forgotPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -333,6 +357,7 @@ export function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [storagePreference, setStoragePreference] = useState<'local' | 'cloud'>('cloud');
   const [error, setError] = useState('');
@@ -362,6 +387,12 @@ export function LoginForm() {
       setIsLoading(false);
     }
   };
+
+  if (showForgotPassword) {
+    return (
+      <ForgotPasswordForm onBackToLogin={() => setShowForgotPassword(false)} />
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
@@ -427,6 +458,19 @@ export function LoginForm() {
               </p>
             )}
           </div>
+
+          {!isRegister && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                disabled={isLoading}
+                className="text-sm text-aegis-600 dark:text-aegis-400 hover:text-aegis-700 dark:hover:text-aegis-300 hover:underline disabled:opacity-50"
+              >
+                Forgot your password?
+              </button>
+            </div>
+          )}
 
           {isRegister && (
             <div>
