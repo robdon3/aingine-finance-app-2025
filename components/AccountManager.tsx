@@ -408,30 +408,6 @@ export default function AccountManager() {
     };
     [key: string]: unknown;
   }
-  const createCSVExport = (data: ExportData) => {
-    let csv = 'Account Name,Type,Institution,Balance,Owner,Notes\n'
-    
-    // Add accounts
-    data.accounts.forEach((account: Account) => {
-      csv += `"${account.name}","${account.type}","${account.institution}",${account.balance},"${account.owner}","${account.notes}"\n`
-    })
-    
-    csv += '\nFamily Member,Relationship,Age,Education,Income,Expenses\n'
-    
-    // Add family members
-    data.familyMembers.forEach((member: FamilyMember) => {
-      csv += `"${member.name}","${member.relationship}",${member.age},"${member.education}",${member.income},${member.expenses}\n`
-    })
-    
-    csv += '\nPaycheck Date,Employer,Gross Pay,Net Pay,Taxes,Retirement,Insurance\n'
-    
-    // Add paychecks
-    data.paychecks.forEach((paycheck: Paycheck) => {
-      csv += `"${paycheck.date}","${paycheck.employer}",${paycheck.grossPay},${paycheck.netPay},${paycheck.deductions.taxes},${paycheck.deductions.retirement},${paycheck.deductions.insurance}\n`
-    })
-    
-    return csv
-  }
 
   const createSummaryReport = (data: ExportData) => {
     let report = 'AINGEN - FINANCIAL SUMMARY REPORT\n'
