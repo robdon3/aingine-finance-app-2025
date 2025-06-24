@@ -23,7 +23,31 @@ export async function GET() {
     }
 
     const users = await redis.get(USERS_KEY);
-    const userData = users ? JSON.parse(users as string) : [];
+    
+    // Handle different data types that might be returned
+    let userData = [];
+    
+    if (users) {
+      if (typeof users === 'string') {
+        try {
+          userData = JSON.parse(users);
+        } catch (parseError) {
+          console.error('Failed to parse users JSON:', parseError);
+          console.log('Raw users data:', users);
+          userData = [];
+        }
+      } else if (Array.isArray(users)) {
+        userData = users;
+      } else if (typeof users === 'object') {
+        // If it's an object, try to convert to array
+        userData = Object.values(users);
+      }
+    }
+    
+    // Ensure we always return an array
+    if (!Array.isArray(userData)) {
+      userData = [];
+    }
     
     return NextResponse.json({ 
       success: true, 
@@ -58,7 +82,9 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    await redis.set(USERS_KEY, JSON.stringify(users));
+    // Ensure we're storing valid JSON
+    const usersJson = JSON.stringify(users);
+    await redis.set(USERS_KEY, usersJson);
     
     return NextResponse.json({ 
       success: true, 

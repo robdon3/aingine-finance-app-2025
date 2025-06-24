@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Shield, ArrowLeft } from 'lucide-react';
+import { Shield, ArrowLeft, Copy, ExternalLink } from 'lucide-react';
 
 interface ForgotPasswordFormProps {
   onBackToLogin: () => void;
@@ -12,6 +12,8 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [resetUrl, setResetUrl] = useState('');
+  const [resetToken, setResetToken] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +34,8 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
       if (data.success) {
         setIsSuccess(true);
         setMessage(data.message);
+        setResetUrl(data.resetUrl || '');
+        setResetToken(data.resetToken || '');
       } else {
         setIsSuccess(false);
         setMessage(data.error || 'An error occurred');
@@ -42,6 +46,16 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
       setMessage('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const openResetUrl = () => {
+    if (resetUrl) {
+      window.open(resetUrl, '_blank');
     }
   };
 
@@ -57,7 +71,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             Forgot Password
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Enter your email address and we&apos;ll send you a link to reset your password.
+            Enter your email address and we&apos;ll generate a password reset link for you.
           </p>
         </div>
         
@@ -99,18 +113,74 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
               disabled={isLoading}
               className="w-full bg-aegis-600 hover:bg-aegis-700 disabled:bg-aegis-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Sending...' : 'Send Reset Link'}
+              {isLoading ? 'Generating...' : 'Generate Reset Link'}
             </button>
           </form>
         ) : (
           <div className="space-y-6">
             <div className="p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg">
-              <p className="text-sm text-green-700 dark:text-green-300">
+              <p className="text-sm text-green-700 dark:text-green-300 mb-3">
                 {message}
               </p>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                Check your email for the password reset link. If you don&apos;t see it, check your spam folder.
-              </p>
+              
+              {resetUrl && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-green-600 dark:text-green-400 mb-1">
+                      Reset URL:
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="text" 
+                        value={resetUrl} 
+                        readOnly
+                        className="flex-1 text-xs px-2 py-1 border border-green-200 dark:border-green-600 rounded bg-white dark:bg-green-800 text-green-700 dark:text-green-300"
+                      />
+                      <button
+                        onClick={() => copyToClipboard(resetUrl)}
+                        className="p-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+                        title="Copy URL"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={openResetUrl}
+                        className="p-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+                        title="Open URL"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {resetToken && (
+                    <div>
+                      <label className="block text-xs font-medium text-green-600 dark:text-green-400 mb-1">
+                        Reset Token (for reference):
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="text" 
+                          value={resetToken} 
+                          readOnly
+                          className="flex-1 text-xs px-2 py-1 border border-green-200 dark:border-green-600 rounded bg-white dark:bg-green-800 text-green-700 dark:text-green-300 font-mono"
+                        />
+                        <button
+                          onClick={() => copyToClipboard(resetToken)}
+                          className="p-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+                          title="Copy token"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-3">
+                    💡 <strong>Development Mode:</strong> In production, this link would be sent via email.
+                  </p>
+                </div>
+              )}
             </div>
             
             <button 

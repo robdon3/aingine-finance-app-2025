@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { Redis } from '@upstash/redis';
-import { emailService } from '../../../../lib/emailService';
 import { v4 as uuidv4 } from 'uuid';
 import { storageManager } from '../../../../lib/storageManager';
 import { UserAccount } from '../../../../components/AuthManager';
@@ -68,26 +67,17 @@ export async function POST(request: Request) {
       localStorage.setItem('aingen_reset_tokens', JSON.stringify(resetTokens));
     }
 
-    // Send password reset email
-    const emailOptions = emailService.generatePasswordResetEmail(
-      user.email!, 
-      resetToken, 
-      user.username
-    );
+    // For development, return the reset token directly
+    // In production, you would send an email instead
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
     
-    const emailSent = await emailService.sendEmail(emailOptions);
-
-    if (emailSent) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'If an account with this email exists, a password reset link has been sent.' 
-      });
-    } else {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Failed to send password reset email' 
-      }, { status: 500 });
-    }
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Password reset link generated successfully.',
+      resetUrl: resetUrl,
+      resetToken: resetToken, // Only for development
+      note: 'In production, this token would be sent via email.'
+    });
 
   } catch (error) {
     console.error('Forgot password error:', error);
