@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, createContext, useContext } from 'react'
+import React, { useState, createContext, useContext, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { storageManager } from '../lib/storageManager'
 import { Shield, Database, Globe } from 'lucide-react'
@@ -108,6 +108,22 @@ const validatePassword = (password: string): { isValid: boolean; errors: string[
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      const storedUserId = localStorage.getItem('aingen_current_user_id');
+      if (storedUserId) {
+        const users = await storageManager.getUsers();
+        const user = users.find((u) => u.id === storedUserId);
+        if (user) {
+          setCurrentUser(user);
+          setIsAuthenticated(true);
+        }
+      }
+    };
+    restoreSession();
+  }, []);
 
   const dataManager = {
     get: (userId: string) => storageManager.getUserData(userId, currentUser?.preferences.storagePreference || 'local'),
@@ -395,7 +411,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
