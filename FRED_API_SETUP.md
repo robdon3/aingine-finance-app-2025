@@ -1,13 +1,19 @@
-# FRED API Setup Guide
+# FRED API Integration for Aingen
 
-## Overview
-Project Aegis uses the Federal Reserve Economic Data (FRED) API to provide real-time economic and financial data for accurate tax calculations and financial analysis.
+Aingen uses the Federal Reserve Economic Data (FRED) API to provide real-time economic and financial data for accurate tax calculations and financial analysis.
 
 ## Getting Your FRED API Key
 
 1. Visit the FRED API key registration page: https://fred.stlouisfed.org/docs/api/api_key.html
 2. Fill out the registration form with your application details
 3. You will receive an API key via email
+
+## Application Information
+
+**Application Name:** Aingen - Privacy-First Financial Decision Engine
+
+**Application Description:**  
+Aingen is a local-first, privacy-focused financial and life decision-making application that helps users understand the true cost of decisions in terms of time, money, and compound interest. The application serves individual users making personal financial decisions and requires access to current, authoritative economic data to provide accurate financial calculations and insights.
 
 ## Application Description for FRED Registration
 

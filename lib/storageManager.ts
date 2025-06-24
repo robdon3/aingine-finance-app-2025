@@ -43,7 +43,7 @@ export const storageManager = {
     }
     
     // Fall back to local storage
-    return localStorageAdapter.get('aegis_users') || [];
+    return localStorageAdapter.get('aingen_users') || [];
   },
   
   setUsers: async (users: UserAccount[]) => {
@@ -53,7 +53,7 @@ export const storageManager = {
     } catch (error) {
       console.error('Failed to store users in cloud:', error);
     }
-    localStorageAdapter.set('aegis_users', users);
+    localStorageAdapter.set('aingen_users', users);
   },
   
   // --- User-Specific Data Management (Local or Cloud) ---
@@ -61,18 +61,18 @@ export const storageManager = {
     if (storagePreference === 'cloud') {
       return await cloudStorage.getUserData(userId);
     }
-    return localStorageAdapter.get(`aegis_user_data_${userId}`);
+    return localStorageAdapter.get(`aingen_user_data_${userId}`);
   },
   setUserData: async (userId: string, data: unknown, storagePreference: 'local' | 'cloud') => {
     if (storagePreference === 'cloud') {
       return await cloudStorage.setUserData(userId, data);
     }
-    localStorageAdapter.set(`aegis_user_data_${userId}`, data);
+    localStorageAdapter.set(`aingen_user_data_${userId}`, data);
   },
   removeUserData: async (userId: string, storagePreference: 'local' | 'cloud') => {
     if (storagePreference === 'cloud') {
       return await cloudStorage.removeUserData(userId);
     }
-    localStorageAdapter.remove(`aegis_user_data_${userId}`);
+    localStorageAdapter.remove(`aingen_user_data_${userId}`);
   },
 }; 

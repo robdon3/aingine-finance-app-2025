@@ -53,7 +53,7 @@ export default function FuelCostManager() {
       setNationalData(national)
       
       // Get state-specific data
-      const selectedLocationCode = localStorage.getItem('aegis_selected_location') || 'CA'
+      const selectedLocationCode = localStorage.getItem('aingen_selected_location') || 'CA'
       const state = await gasPriceService.getStatePrices(selectedLocationCode)
       console.log('State data loaded:', state)
       setStateData(state)

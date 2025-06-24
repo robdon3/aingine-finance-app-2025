@@ -6,7 +6,7 @@ import { TrendingUp, Home, GraduationCap, Baby, Target, BarChart3, PieChart, Lin
 // Helper function to check if user chose blank data
 const shouldShowBlankData = () => {
   try {
-    const item = localStorage.getItem('aegis_started_with_blank_data')
+    const item = localStorage.getItem('aingen_started_with_blank_data')
     return item ? JSON.parse(item) : false
   } catch {
     return false

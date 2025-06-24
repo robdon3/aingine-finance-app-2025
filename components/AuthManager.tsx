@@ -48,8 +48,8 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 // Storage keys
 const STORAGE_KEYS = {
-  USERS: 'aegis_users',
-  CURRENT_USER_ID: 'aegis_current_user_id',
+  USERS: 'aingen_users',
+  CURRENT_USER_ID: 'aingen_current_user_id',
 }
 
 // Default data templates for new users
@@ -288,7 +288,7 @@ export function LoginForm() {
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-8 w-8 text-aegis-600" />
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Project Aegis</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Aingen</h2>
           </div>
           <p className="text-gray-600 dark:text-gray-400">{isRegister ? 'Create a new account' : 'Sign in to your account'}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Engine for the People</p>

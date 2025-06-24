@@ -86,7 +86,7 @@ function MainApp() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Shield className="h-6 w-6 text-aegis-600" />
-              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Project Aegis</h1>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aingen</h1>
             </div>
             {/* Close button for mobile */}
             <button
@@ -182,7 +182,7 @@ function MainApp() {
               </button>
               <div className="flex items-center space-x-2">
                 <Shield className="h-5 w-5 text-aegis-600" />
-                <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aegis</h1>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Aingen</h1>
               </div>
             </div>
             <div className="flex items-center space-x-2">

@@ -18,7 +18,7 @@ const CONFIG = {
   
   // GitHub
   GITHUB_TOKEN: process.env.GITHUB_TOKEN,
-  GITHUB_REPO: 'robdon3/aegis-engine',
+  GITHUB_REPO: 'robdon3/aingen-engine',
   
   // Monitoring intervals (in milliseconds) - OPTIMIZED FOR COST
   VERCEL_CHECK_INTERVAL: process.env.VERCEL_CHECK_INTERVAL || 30 * 60 * 1000, // 30 minutes (was 5 minutes)
@@ -176,7 +176,7 @@ async function checkGitHubHealth() {
     const options = {
       headers: {
         'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
-        'User-Agent': 'Project-Aegis-Monitor'
+        'User-Agent': 'Aingen-Monitor'
       }
     };
 
@@ -256,7 +256,7 @@ function saveHealthReport(report) {
 
 // Main monitoring loop
 async function runMonitoring() {
-  log('Starting Project Aegis monitoring system...', 'INFO');
+  log('Starting Aingen monitoring system...', 'INFO');
   
   // Initial health checks
   await Promise.all([

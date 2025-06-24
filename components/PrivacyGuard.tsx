@@ -54,7 +54,7 @@ export default function PrivacyGuard() {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Privacy & Security</h2>
         <p className="text-gray-600">
-          Your data sovereignty is fundamental to Project Aegis. Learn how we protect your privacy.
+          Your data sovereignty is fundamental to Aingen. Learn how we protect your privacy.
         </p>
       </div>
 
@@ -220,7 +220,7 @@ export default function PrivacyGuard() {
           <Shield className="h-12 w-12 text-aegis-600 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-gray-900 mb-2">Our Commitment to You</h3>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Project Aegis is built on the principle that technology should serve human flourishing, 
+            Aingen is built on the principle that technology should serve human flourishing, 
             not extract value from human attention. Your privacy is not a feature—it&apos;s the foundation 
             of everything we build.
           </p>

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🚀 Project Aegis Monitoring Setup"
-echo "=================================="
+echo "🚀 Aingen Monitoring Setup"
+echo "=========================="
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@types/node": "^20.0.0",
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/uuid": "^10.0.0",
@@ -21,6 +22,7 @@
     "localforage": "^1.10.0",
     "lucide-react": "^0.292.0",
     "next": "^14.0.0",
+    "papaparse": "^5.5.3",
     "postcss": "^8.4.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -41,6 +43,6 @@
     "agency",
     "wealth-generation"
   ],
-  "author": "Project Aegis",
+  "author": "Aingen",
   "license": "MIT"
 }

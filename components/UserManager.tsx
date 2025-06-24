@@ -35,7 +35,7 @@ export function UserManager() {
   // This is a temporary solution to get the user list.
   // In a real app, this should come from a shared state or a dedicated user management hook.
   useEffect(() => {
-    const allUsers = JSON.parse(localStorage.getItem('aegis_users') || '[]');
+    const allUsers = JSON.parse(localStorage.getItem('aingen_users') || '[]');
     setUsers(allUsers);
   }, [currentUser]);
 
@@ -56,7 +56,7 @@ export function UserManager() {
           const data = JSON.parse(e.target?.result as string);
           const success = await importUserData(data);
           if (success) {
-            const allUsers = JSON.parse(localStorage.getItem('aegis_users') || '[]');
+            const allUsers = JSON.parse(localStorage.getItem('aingen_users') || '[]');
             setUsers(allUsers);
             setShowDataStats(null);
             alert('Data imported successfully!');

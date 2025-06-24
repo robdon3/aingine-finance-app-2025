@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { User, Users, LogOut, Save, Trash2, Plus, Settings, Shield, Download, Upload } from 'lucide-react'
+import Papa from 'papaparse'
 
 interface FamilyMember {
   id: string
@@ -44,12 +45,12 @@ interface Paycheck {
 
 // Storage keys for localStorage
 const STORAGE_KEYS = {
-  FAMILY_MEMBERS: 'aegis_family_members',
-  ACCOUNTS: 'aegis_accounts',
-  PAYCHECKS: 'aegis_paychecks',
-  USER_LOGGED_IN: 'aegis_user_logged_in',
-  CURRENT_USER: 'aegis_current_user',
-  STARTED_WITH_BLANK_DATA: 'aegis_started_with_blank_data'
+  FAMILY_MEMBERS: 'aingen_family_members',
+  ACCOUNTS: 'aingen_accounts',
+  PAYCHECKS: 'aingen_paychecks',
+  USER_LOGGED_IN: 'aingen_user_logged_in',
+  CURRENT_USER: 'aingen_current_user',
+  STARTED_WITH_BLANK_DATA: 'aingen_started_with_blank_data'
 }
 
 function generateId() {
@@ -322,26 +323,26 @@ export default function AccountManager() {
       paychecks,
       
       // Financial Dashboard Data (if available)
-      financialData: storage.get('aegis_financial_data') || [],
+      financialData: storage.get('aingen_financial_data') || [],
       
       // Net Worth Data (if available)
-      netWorthData: storage.get('aegis_net_worth_data') || [],
-      lifeMilestones: storage.get('aegis_life_milestones') || [],
-      investments: storage.get('aegis_investments') || [],
+      netWorthData: storage.get('aingen_net_worth_data') || [],
+      lifeMilestones: storage.get('aingen_life_milestones') || [],
+      investments: storage.get('aingen_investments') || [],
       
       // Time Value Calculations (if available)
-      timeValueCalculations: storage.get('aegis_time_value_calculations') || [],
+      timeValueCalculations: storage.get('aingen_time_value_calculations') || [],
       
       // True Cost Calculations (if available)
-      trueCostCalculations: storage.get('aegis_true_cost_calculations') || [],
+      trueCostCalculations: storage.get('aingen_true_cost_calculations') || [],
       
       // Life Context Data (if available)
-      lifeContextData: storage.get('aegis_life_context_data') || [],
+      lifeContextData: storage.get('aingen_life_context_data') || [],
       
       // Export metadata
       exportDate: new Date().toISOString(),
       exportVersion: '1.0',
-      appName: 'Project Aegis',
+      appName: 'Aingen',
       dataSummary: {
         familyMembers: familyMembers.length,
         accounts: accounts.length,
@@ -352,30 +353,44 @@ export default function AccountManager() {
       }
     }
     
-    // Create JSON export
-    const jsonBlob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' })
+    const jsonString = JSON.stringify(allData, null, 2)
+    const jsonBlob = new Blob([jsonString], { type: 'application/json' })
     const jsonUrl = URL.createObjectURL(jsonBlob)
+    
     const jsonLink = document.createElement('a')
     jsonLink.href = jsonUrl
-    jsonLink.download = `aegis-complete-data-${new Date().toISOString().split('T')[0]}.json`
+    jsonLink.download = `aingen-complete-data-${new Date().toISOString().split('T')[0]}.json`
     jsonLink.click()
     
-    // Create CSV export for accounts
-    const csvData = createCSVExport(allData)
-    const csvBlob = new Blob([csvData], { type: 'text/csv' })
+    // Also create CSV export for accounts
+    const csvData = accounts.map(account => ({
+      Name: account.name,
+      Type: account.type,
+      Institution: account.institution,
+      Balance: account.balance,
+      'Interest Rate': account.interestRate,
+      'Monthly Payment': account.monthlyPayment,
+      Owner: account.owner,
+      Notes: account.notes
+    }))
+    
+    const csvString = Papa.unparse(csvData)
+    const csvBlob = new Blob([csvString], { type: 'text/csv' })
     const csvUrl = URL.createObjectURL(csvBlob)
+    
     const csvLink = document.createElement('a')
     csvLink.href = csvUrl
-    csvLink.download = `aegis-accounts-${new Date().toISOString().split('T')[0]}.csv`
+    csvLink.download = `aingen-accounts-${new Date().toISOString().split('T')[0]}.csv`
     csvLink.click()
     
     // Create summary report
     const reportData = createSummaryReport(allData)
     const reportBlob = new Blob([reportData], { type: 'text/plain' })
     const reportUrl = URL.createObjectURL(reportBlob)
+    
     const reportLink = document.createElement('a')
     reportLink.href = reportUrl
-    reportLink.download = `aegis-summary-report-${new Date().toISOString().split('T')[0]}.txt`
+    reportLink.download = `aingen-summary-report-${new Date().toISOString().split('T')[0]}.txt`
     reportLink.click()
   }
 
@@ -419,7 +434,7 @@ export default function AccountManager() {
   }
 
   const createSummaryReport = (data: ExportData) => {
-    let report = 'PROJECT AEGIS - FINANCIAL SUMMARY REPORT\n'
+    let report = 'AINGEN - FINANCIAL SUMMARY REPORT\n'
     report += '=' .repeat(50) + '\n\n'
     report += `Generated: ${new Date().toLocaleString()}\n\n`
     
@@ -485,7 +500,7 @@ export default function AccountManager() {
       report += '💰 Build up your emergency fund to 3-6 months of expenses.\n'
     }
     
-    report += '\nThis report was generated by Project Aegis - Your Engine for Personal Agency\n'
+    report += '\nThis report was generated by Aingen - Your Engine for Personal Agency\n'
     report += 'All data is stored locally on your device for complete privacy.\n'
     
     return report
@@ -528,16 +543,16 @@ export default function AccountManager() {
       storage.remove(STORAGE_KEYS.ACCOUNTS)
       storage.remove(STORAGE_KEYS.PAYCHECKS)
       
-      // Clear all other Aegis data
-      storage.remove('aegis_financial_data')
-      storage.remove('aegis_net_worth_data')
-      storage.remove('aegis_life_milestones')
-      storage.remove('aegis_investments')
-      storage.remove('aegis_time_value_calculations')
-      storage.remove('aegis_true_cost_calculations')
-      storage.remove('aegis_life_context_data')
-      storage.remove('aegis_fred_api_key')
-      storage.remove('aegis_census_api_key')
+      // Clear all other Aingen data
+      storage.remove('aingen_financial_data')
+      storage.remove('aingen_net_worth_data')
+      storage.remove('aingen_life_milestones')
+      storage.remove('aingen_investments')
+      storage.remove('aingen_time_value_calculations')
+      storage.remove('aingen_true_cost_calculations')
+      storage.remove('aingen_life_context_data')
+      storage.remove('aingen_fred_api_key')
+      storage.remove('aingen_census_api_key')
       
       // Force page refresh to ensure clean state
       window.location.reload()
@@ -901,7 +916,7 @@ export default function AccountManager() {
         <div className="aegis-card max-w-md w-full">
           <div className="text-center">
             <Shield className="h-12 w-12 text-aegis-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Project Aegis</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Aingen</h2>
             <p className="text-gray-600 mb-6">Your engine for personal agency and wealth generation</p>
             
             <div className="space-y-3">
@@ -929,7 +944,7 @@ export default function AccountManager() {
                 <li>• Complete family profile with realistic data</li>
                 <li>• 8 different account types (checking, savings, investments, loans)</li>
                 <li>• Sample paycheck data with deductions</li>
-                <li>• Explore all Project Aegis features safely</li>
+                <li>• Explore all Aingen features safely</li>
                 <li>• Data is temporary and won&apos;t be saved</li>
               </ul>
             </div>
@@ -978,7 +993,7 @@ export default function AccountManager() {
             <div>
               <h4 className="font-medium text-blue-900">Sample User Mode</h4>
               <p className="text-sm text-blue-800">
-                You&apos;re exploring Project Aegis with sample data. This data is temporary and won&apos;t be permanently saved. 
+                You&apos;re exploring Aingen with sample data. This data is temporary and won&apos;t be permanently saved. 
                 Feel free to modify, add, or delete data to see how the app works!
               </p>
             </div>
@@ -1045,7 +1060,7 @@ export default function AccountManager() {
       </div>
 
       {/* Family Members */}
-      <div className="aegis-card">
+      <div className="aegen-card">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center space-x-2">
             <Users className="h-5 w-5 text-liberty-600" />
@@ -1053,7 +1068,7 @@ export default function AccountManager() {
           </h3>
           <button
             onClick={() => { setShowAddMember(!showAddMember); setEditingMemberId(null); setMemberForm({ id: '', name: '', relationship: '', age: '', education: '', income: '', expenses: '', goals: '' }) }}
-            className="aegis-button text-sm flex items-center space-x-2"
+            className="aegen-button text-sm flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />
             <span>{showAddMember && !editingMemberId ? 'Cancel' : 'Add Member'}</span>
@@ -1071,8 +1086,8 @@ export default function AccountManager() {
               <input name="goals" value={memberForm.goals} onChange={handleMemberFormChange} placeholder="Goals (comma separated)" className="px-3 py-2 border rounded-lg col-span-2" />
             </div>
             <div className="mt-4 flex space-x-2">
-              <button onClick={handleAddOrEditMember} className="aegis-button">{editingMemberId ? 'Save Changes' : 'Add Member'}</button>
-              <button onClick={() => { setShowAddMember(false); setEditingMemberId(null); setMemberForm({ id: '', name: '', relationship: '', age: '', education: '', income: '', expenses: '', goals: '' }) }} className="aegis-button-secondary">Cancel</button>
+              <button onClick={handleAddOrEditMember} className="aegen-button">{editingMemberId ? 'Save Changes' : 'Add Member'}</button>
+              <button onClick={() => { setShowAddMember(false); setEditingMemberId(null); setMemberForm({ id: '', name: '', relationship: '', age: '', education: '', income: '', expenses: '', goals: '' }) }} className="aegen-button-secondary">Cancel</button>
             </div>
           </div>
         )}
@@ -1080,7 +1095,7 @@ export default function AccountManager() {
           {familyMembers.map((member) => (
             <div key={member.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center space-x-3 mb-3">
-                <User className="h-6 w-6 text-aegis-600" />
+                <User className="h-6 w-6 text-aegen-600" />
                 <div>
                   <h4 className="font-semibold text-gray-900">{member.name}</h4>
                   <p className="text-sm text-gray-600 capitalize">{member.relationship}</p>
@@ -1096,7 +1111,7 @@ export default function AccountManager() {
                 <div className="mt-3"><div className="text-xs font-medium text-gray-700 mb-1">Goals:</div><div className="space-y-1">{member.goals.slice(0, 2).map((goal, index) => (<div key={index} className="text-xs text-gray-600">• {goal}</div>))}</div></div>
               )}
               <div className="mt-4 flex space-x-2">
-                <button onClick={() => handleEditMember(member)} className="aegis-button-secondary text-xs">Edit</button>
+                <button onClick={() => handleEditMember(member)} className="aegen-button-secondary text-xs">Edit</button>
                 <button onClick={() => handleDeleteMember(member.id)} className="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium py-1 px-3 rounded-lg">Delete</button>
               </div>
             </div>
@@ -1105,7 +1120,7 @@ export default function AccountManager() {
       </div>
 
       {/* Financial Accounts */}
-      <div className="aegis-card">
+      <div className="aegen-card">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center space-x-2">
             <Save className="h-5 w-5 text-green-600" />
@@ -1113,7 +1128,7 @@ export default function AccountManager() {
           </h3>
           <button
             onClick={() => { setShowAddAccount(!showAddAccount); setEditingAccountId(null); setAccountForm({ id: '', name: '', type: 'checking', institution: '', balance: '', interestRate: '', monthlyPayment: '', owner: '', notes: '' }) }}
-            className="aegis-button text-sm flex items-center space-x-2"
+            className="aegen-button text-sm flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />
             <span>{showAddAccount && !editingAccountId ? 'Cancel' : 'Add Account'}</span>
@@ -1140,8 +1155,8 @@ export default function AccountManager() {
               <input name="notes" value={accountForm.notes} onChange={handleAccountFormChange} placeholder="Notes" className="px-3 py-2 border rounded-lg col-span-2" />
             </div>
             <div className="mt-4 flex space-x-2">
-              <button onClick={handleAddOrEditAccount} className="aegis-button">{editingAccountId ? 'Save Changes' : 'Add Account'}</button>
-              <button onClick={() => { setShowAddAccount(false); setEditingAccountId(null); setAccountForm({ id: '', name: '', type: 'checking', institution: '', balance: '', interestRate: '', monthlyPayment: '', owner: '', notes: '' }) }} className="aegis-button-secondary">Cancel</button>
+              <button onClick={handleAddOrEditAccount} className="aegen-button">{editingAccountId ? 'Save Changes' : 'Add Account'}</button>
+              <button onClick={() => { setShowAddAccount(false); setEditingAccountId(null); setAccountForm({ id: '', name: '', type: 'checking', institution: '', balance: '', interestRate: '', monthlyPayment: '', owner: '', notes: '' }) }} className="aegen-button-secondary">Cancel</button>
             </div>
           </div>
         )}
@@ -1186,7 +1201,7 @@ export default function AccountManager() {
                   </td>
                   <td className="py-3 px-4 text-sm text-gray-600">{account.owner}</td>
                   <td className="py-3 px-4 text-right">
-                    <button onClick={() => handleEditAccount(account)} className="aegis-button-secondary text-xs mr-2">Edit</button>
+                    <button onClick={() => handleEditAccount(account)} className="aegen-button-secondary text-xs mr-2">Edit</button>
                     <button onClick={() => handleDeleteAccount(account.id)} className="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium py-1 px-3 rounded-lg">Delete</button>
                   </td>
                 </tr>
@@ -1197,7 +1212,7 @@ export default function AccountManager() {
       </div>
 
       {/* Paycheck Tracking */}
-      <div className="aegis-card">
+      <div className="aegen-card">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center space-x-2">
             <Save className="h-5 w-5 text-blue-600" />
@@ -1205,7 +1220,7 @@ export default function AccountManager() {
           </h3>
           <button
             onClick={() => { setShowAddPaycheck(!showAddPaycheck); setEditingPaycheckId(null); setPaycheckForm({ id: '', date: '', grossPay: '', netPay: '', taxes: '', retirement: '', insurance: '', other: '', employer: '', notes: '' }) }}
-            className="aegis-button text-sm flex items-center space-x-2"
+            className="aegen-button text-sm flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />
             <span>{showAddPaycheck && !editingPaycheckId ? 'Cancel' : 'Add Paycheck'}</span>
@@ -1225,8 +1240,8 @@ export default function AccountManager() {
               <input name="notes" value={paycheckForm.notes} onChange={handlePaycheckFormChange} placeholder="Notes" className="px-3 py-2 border rounded-lg col-span-2" />
             </div>
             <div className="mt-4 flex space-x-2">
-              <button onClick={handleAddOrEditPaycheck} className="aegis-button">{editingPaycheckId ? 'Save Changes' : 'Add Paycheck'}</button>
-              <button onClick={() => { setShowAddPaycheck(false); setEditingPaycheckId(null); setPaycheckForm({ id: '', date: '', grossPay: '', netPay: '', taxes: '', retirement: '', insurance: '', other: '', employer: '', notes: '' }) }} className="aegis-button-secondary">Cancel</button>
+              <button onClick={handleAddOrEditPaycheck} className="aegen-button">{editingPaycheckId ? 'Save Changes' : 'Add Paycheck'}</button>
+              <button onClick={() => { setShowAddPaycheck(false); setEditingPaycheckId(null); setPaycheckForm({ id: '', date: '', grossPay: '', netPay: '', taxes: '', retirement: '', insurance: '', other: '', employer: '', notes: '' }) }} className="aegen-button-secondary">Cancel</button>
             </div>
           </div>
         )}
@@ -1251,7 +1266,7 @@ export default function AccountManager() {
               </div>
               {paycheck.notes && (<div className="mt-3 text-sm text-gray-600"><span className="font-medium">Notes:</span> {paycheck.notes}</div>)}
               <div className="mt-4 flex space-x-2">
-                <button onClick={() => handleEditPaycheck(paycheck)} className="aegis-button-secondary text-xs">Edit</button>
+                <button onClick={() => handleEditPaycheck(paycheck)} className="aegen-button-secondary text-xs">Edit</button>
                 <button onClick={() => handleDeletePaycheck(paycheck.id)} className="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium py-1 px-3 rounded-lg">Delete</button>
               </div>
             </div>
@@ -1260,13 +1275,13 @@ export default function AccountManager() {
       </div>
 
       {/* Quick Actions */}
-      <div className="aegis-card">
+      <div className="aegen-card">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="aegis-card hover:bg-aegis-50 transition-colors text-left">
+          <button className="aegen-card hover:bg-aegen-50 transition-colors text-left">
             <div className="flex items-center space-x-3">
-              <Users className="h-6 w-6 text-aegis-600" />
+              <Users className="h-6 w-6 text-aegen-600" />
               <div>
                 <div className="font-semibold text-gray-900">Add Family Member</div>
                 <div className="text-sm text-gray-600">Track spouse, children, dependents</div>
@@ -1274,7 +1289,7 @@ export default function AccountManager() {
             </div>
           </button>
           
-          <button className="aegis-card hover:bg-aegis-50 transition-colors text-left">
+          <button className="aegen-card hover:bg-aegen-50 transition-colors text-left">
             <div className="flex items-center space-x-3">
               <Save className="h-6 w-6 text-green-600" />
               <div>
@@ -1284,7 +1299,7 @@ export default function AccountManager() {
             </div>
           </button>
           
-          <button className="aegis-card hover:bg-aegis-50 transition-colors text-left">
+          <button className="aegen-card hover:bg-aegen-50 transition-colors text-left">
             <div className="flex items-center space-x-3">
               <Save className="h-6 w-6 text-blue-600" />
               <div>
@@ -1294,7 +1309,7 @@ export default function AccountManager() {
             </div>
           </button>
           
-          <button className="aegis-card hover:bg-aegis-50 transition-colors text-left">
+          <button className="aegen-card hover:bg-aegen-50 transition-colors text-left">
             <div className="flex items-center space-x-3">
               <Shield className="h-6 w-6 text-purple-600" />
               <div>

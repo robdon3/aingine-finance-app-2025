@@ -1,14 +1,14 @@
-# Project Aegis - Engine for the People
+# Aingen - Engine for the People
 
 > "We hold these truths to be self-evident, that all people are endowed with certain unalienable rights, that among these are Life, Liberty and the pursuit of Happiness."
 
 ## Vision
 
-Project Aegis is the **"Everything App"** for personal agency and wealth generation. In a world where time is traded for money but true value is obscured by inflation and complexity, Aegis provides the comprehensive tools for people to understand, visualize, and optimize their most precious resource: their time and its compound effects.
+Aingen is the **"Everything App"** for personal agency and wealth generation. In a world where time is traded for money but true value is obscured by inflation and complexity, Aingen provides the comprehensive tools for people to understand, visualize, and optimize their most precious resource: their time and its compound effects.
 
 ## The "Everything App" Philosophy
 
-Aegis is not just a financial tool—it's a **life management engine** that understands the full context of human existence:
+Aingen is not just a financial tool—it's a **life management engine** that understands the full context of human existence:
 
 - **High school students** preparing for college decisions
 - **Young professionals** navigating career choices and major purchases
@@ -93,7 +93,7 @@ Aegis is not just a financial tool—it's a **life management engine** that unde
 
 ## The "Shelling Shovels" of the Digital Gold Rush
 
-Just as the real wealth in any gold rush went to those providing the tools, Aegis provides the essential tools for navigating today's complex financial landscape:
+Just as the real wealth in any gold rush went to those providing the tools, Aingen provides the essential tools for navigating today's complex financial landscape:
 
 - **For the high school student**: Understanding the true cost of college vs. career paths
 - **For the young professional**: Making informed decisions about cars, homes, and investments
@@ -147,7 +147,7 @@ UPSTASH_REDIS_REST_TOKEN=your_redis_token_here
 
 Redis is optional and only used for cloud storage features. The application will work without Redis, but some features like user data persistence across devices will be limited to local storage.
 
-## The Aegis Manifesto
+## The Aingen Manifesto
 
 We believe in the power of individual agency. We believe that when people have the right tools and understanding, they can make decisions that compound in their favor over time. We believe that technology should serve human flourishing, not extract value from human attention.
 
@@ -183,4 +183,4 @@ This is not just an app. This is an **engine for the people**—a digital consti
 
 *"The best time to plant a tree was 20 years ago. The second best time is now."*
 
-**Project Aegis** - Your engine for personal agency and wealth generation. 
+**Aingen** - Your engine for personal agency and wealth generation. 

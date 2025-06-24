@@ -1,4 +1,4 @@
-# Project Aegis Background Monitoring
+# Aingen Background Monitoring
 
 This monitoring system provides real-time health checks for your GitHub, Vercel, and Upstash infrastructure.
 
@@ -254,4 +254,4 @@ REDIS_CHECK_INTERVAL=1800000   # 30 minutes
 GITHUB_CHECK_INTERVAL=7200000  # 120 minutes
 ```
 
-This monitoring system gives you complete visibility into your Project Aegis infrastructure health! 🚀 
+This monitoring system gives you complete visibility into your Aingen infrastructure health! 🚀 

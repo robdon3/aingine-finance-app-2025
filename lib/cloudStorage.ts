@@ -16,8 +16,8 @@ if (typeof window === 'undefined') {
   console.log('Cloud storage: Client-side mode - using API endpoints for Redis operations')
 }
 
-const USER_DATA_PREFIX = 'aegis_user_data:'
-const USERS_KEY = 'aegis_users'
+const USER_DATA_PREFIX = 'aingen_user_data:'
+const USERS_KEY = 'aingen_users'
 
 export async function getUserData(userId: string) {
   if (!redis) {

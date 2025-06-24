@@ -20,13 +20,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Load theme from localStorage or default to auto
-    const savedTheme = localStorage.getItem('aegis_theme') as Theme || 'auto'
+    const savedTheme = localStorage.getItem('aingen_theme') as Theme || 'auto'
     setTheme(savedTheme)
   }, [])
 
   useEffect(() => {
     // Save theme to localStorage
-    localStorage.setItem('aegis_theme', theme)
+    localStorage.setItem('aingen_theme', theme)
     
     // Apply theme to document
     const root = document.documentElement
