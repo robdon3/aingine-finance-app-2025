@@ -65,7 +65,12 @@ export async function POST(request: Request) {
     }
 
     // Get reset token data
-    let tokenData: any = null;
+    let tokenData: {
+      userId: string;
+      email: string;
+      username: string;
+      expiresAt: number;
+    } | null = null;
     
     if (redis) {
       const tokenKey = `${RESET_TOKEN_PREFIX}${token}`;

@@ -57,7 +57,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
             Forgot Password
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
         
@@ -109,7 +109,7 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
                 {message}
               </p>
               <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                Check your email for the password reset link. If you don't see it, check your spam folder.
+                Check your email for the password reset link. If you don&apos;t see it, check your spam folder.
               </p>
             </div>
             
