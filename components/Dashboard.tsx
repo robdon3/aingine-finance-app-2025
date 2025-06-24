@@ -67,18 +67,27 @@ export default function Dashboard() {
     loadData()
   }, [getSection])
 
+  // Function to handle quick action navigation
+  const handleQuickAction = (action: string) => {
+    // Find the tab element and click it
+    const tabElement = document.querySelector(`[data-tab="${action}"]`) as HTMLElement
+    if (tabElement) {
+      tabElement.click()
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-4 lg:p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Agency Dashboard</h2>
-          <p className="text-gray-600">Loading your data...</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Your Agency Dashboard</h2>
+          <p className="text-gray-600 dark:text-gray-400">Loading your data...</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow p-4 border border-gray-200 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-8 bg-gray-200 rounded"></div>
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded"></div>
             </div>
           ))}
         </div>
@@ -114,7 +123,7 @@ export default function Dashboard() {
     <div className="p-4 lg:p-6 space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Your Agency Dashboard</h2>
-        <p className="text-gray-600 dark:text-gray-400">Comprehensive overview of your financial health, life context, and key metrics.</p>
+        <p className="text-gray-700 dark:text-gray-300">Comprehensive overview of your financial health, life context, and key metrics.</p>
       </div>
       
       {/* Key Metrics Row */}
@@ -123,10 +132,10 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Net Worth</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Current Net Worth</p>
               <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(netWorthValue)}</p>
             </div>
-            <TrendingUp className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+            <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
         </div>
         
@@ -134,10 +143,10 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Fuel Cost</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Avg. Fuel Cost</p>
               <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(fuelCostData.gasPrices?.regular)}</p>
             </div>
-            <Fuel className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+            <Fuel className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           </div>
         </div>
         
@@ -145,10 +154,10 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Savings</p>
-              <p className={`text-xl lg:text-2xl font-bold ${monthlySavings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{formatCurrency(monthlySavings)}</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Monthly Savings</p>
+              <p className={`text-xl lg:text-2xl font-bold ${monthlySavings >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>{formatCurrency(monthlySavings)}</p>
             </div>
-            <PiggyBank className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+            <PiggyBank className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
         </div>
         
@@ -156,10 +165,10 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Emergency Fund</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-600 dark:text-blue-400">{emergencyFund.toFixed(1)} months</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Emergency Fund</p>
+              <p className="text-xl lg:text-2xl font-bold text-blue-700 dark:text-blue-400">{emergencyFund.toFixed(1)} months</p>
             </div>
-            <ShieldCheck className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+            <ShieldCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
         </div>
       </div>
@@ -173,20 +182,20 @@ export default function Dashboard() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Financial Health Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Income</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Monthly Income</p>
                 <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(income)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Expenses</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Monthly Expenses</p>
                 <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(expenses)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Savings Rate</p>
-                <p className={`text-lg lg:text-xl font-bold ${savingsRate >= 10 ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}`}>{savingsRate.toFixed(1)}%</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Savings Rate</p>
+                <p className={`text-lg lg:text-xl font-bold ${savingsRate >= 10 ? 'text-green-700 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>{savingsRate.toFixed(1)}%</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Assets vs Debt</p>
-                <p className="text-lg lg:text-xl font-bold text-blue-600 dark:text-blue-400">
+                <p className="text-sm text-gray-700 dark:text-gray-300">Assets vs Debt</p>
+                <p className="text-lg lg:text-xl font-bold text-blue-700 dark:text-blue-400">
                   {liabilities.reduce((s: number, l: { value?: number }) => s + (l.value || 0), 0) > 0 
                     ? `${(assets.reduce((s: number, a: { value?: number }) => s + (a.value || 0), 0) / liabilities.reduce((s: number, l: { value?: number }) => s + (l.value || 0), 0)).toFixed(1)}x` 
                     : 'N/A'}
@@ -206,11 +215,11 @@ export default function Dashboard() {
                     <div key={calcData.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div>
                         <p className="font-medium text-gray-900 dark:text-gray-100">{calcData.name || 'Untitled Calculation'}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Sticker: {formatCurrency(calcData.stickerPrice)}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">Sticker: {formatCurrency(calcData.stickerPrice)}</p>
                       </div>
                       <div className="sm:text-right mt-2 sm:mt-0">
-                        <p className="font-bold text-red-600 dark:text-red-400">True Cost: {formatCurrency(calcData.trueCost)}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="font-bold text-red-700 dark:text-red-400">True Cost: {formatCurrency(calcData.trueCost)}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           {calcData.stickerPrice && calcData.stickerPrice > 0 
                             ? `+${(((calcData.trueCost || 0) - calcData.stickerPrice) / calcData.stickerPrice * 100).toFixed(1)}% hidden costs`
                             : 'Invalid sticker price'}
@@ -220,7 +229,7 @@ export default function Dashboard() {
                   )
                 })
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No True Cost analyses performed yet.</p>
+                <p className="text-gray-600 dark:text-gray-400 text-center py-4">No True Cost analyses performed yet.</p>
               )}
             </div>
           </div>
@@ -229,7 +238,7 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Net Worth Trend</h3>
             <div className="h-48 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">Chart placeholder - Net worth over time</p>
+              <p className="text-gray-600 dark:text-gray-400">Chart placeholder - Net worth over time</p>
             </div>
           </div>
         </div>
@@ -240,30 +249,39 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full text-left p-3 bg-aegis-50 dark:bg-aegis-900 hover:bg-aegis-100 dark:hover:bg-aegis-800 rounded-lg transition-colors">
+              <button 
+                onClick={() => handleQuickAction('true-cost')}
+                className="w-full text-left p-3 bg-blue-50 dark:bg-blue-900 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-lg transition-colors cursor-pointer"
+              >
                 <div className="flex items-center space-x-3">
-                  <Calculator className="h-5 w-5 text-aegis-600" />
+                  <Calculator className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">Calculate True Cost</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">New purchase decision</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">New purchase decision</p>
                   </div>
                 </div>
               </button>
-              <button className="w-full text-left p-3 bg-aegis-50 dark:bg-aegis-900 hover:bg-aegis-100 dark:hover:bg-aegis-800 rounded-lg transition-colors">
+              <button 
+                onClick={() => handleQuickAction('fuel-cost')}
+                className="w-full text-left p-3 bg-orange-50 dark:bg-orange-900 hover:bg-orange-100 dark:hover:bg-orange-800 rounded-lg transition-colors cursor-pointer"
+              >
                 <div className="flex items-center space-x-3">
-                  <Fuel className="h-5 w-5 text-aegis-600" />
+                  <Fuel className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">Check Fuel Prices</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Current AAA rates</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Current AAA rates</p>
                   </div>
                 </div>
               </button>
-              <button className="w-full text-left p-3 bg-aegis-50 dark:bg-aegis-900 hover:bg-aegis-100 dark:hover:bg-aegis-800 rounded-lg transition-colors">
+              <button 
+                onClick={() => handleQuickAction('time-value')}
+                className="w-full text-left p-3 bg-green-50 dark:bg-green-900 hover:bg-green-100 dark:hover:bg-green-800 rounded-lg transition-colors cursor-pointer"
+              >
                 <div className="flex items-center space-x-3">
-                  <Clock className="h-5 w-5 text-aegis-600" />
+                  <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">Time Value Calculator</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Future value analysis</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Future value analysis</p>
                   </div>
                 </div>
               </button>
@@ -273,7 +291,7 @@ export default function Dashboard() {
           {/* AI Insights */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 lg:p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center space-x-2">
-              <Zap className="h-5 w-5 text-aegis-600" />
+              <Zap className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
               <span>AI Insights</span>
             </h3>
             <div className="space-y-3">
@@ -289,7 +307,7 @@ export default function Dashboard() {
                   )
                 })
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No AI insights available yet.</p>
+                <p className="text-gray-600 dark:text-gray-400 text-center py-4">No AI insights available yet.</p>
               )}
             </div>
           </div>
@@ -303,7 +321,7 @@ export default function Dashboard() {
                   const goalData = goal as { name?: string } | string
                   return (
                     <div key={index} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-aegis-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full"></div>
                       <span className="text-sm text-gray-700 dark:text-gray-300">
                         {typeof goalData === 'object' && goalData !== null ? goalData.name || 'Unknown goal' : goalData}
                       </span>
@@ -311,7 +329,7 @@ export default function Dashboard() {
                   )
                 })
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No goals set yet.</p>
+                <p className="text-gray-600 dark:text-gray-400 text-center py-4">No goals set yet.</p>
               )}
             </div>
           </div>

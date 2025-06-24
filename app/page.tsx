@@ -111,6 +111,7 @@ function MainApp() {
             {tabs.filter(tab => tab.category === 'primary').map((tab) => (
               <button
                 key={tab.id}
+                data-tab={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 mb-1 ${
                   activeTab === tab.id
@@ -132,6 +133,7 @@ function MainApp() {
             {tabs.filter(tab => tab.category === 'secondary').map((tab) => (
               <button
                 key={tab.id}
+                data-tab={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-sm transition-colors duration-200 mb-1 ${
                   activeTab === tab.id
@@ -153,6 +155,7 @@ function MainApp() {
             {tabs.filter(tab => tab.category === 'setup').map((tab) => (
               <button
                 key={tab.id}
+                data-tab={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-xs transition-colors duration-200 mb-1 ${
                   activeTab === tab.id
