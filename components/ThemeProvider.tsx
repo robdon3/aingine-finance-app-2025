@@ -89,14 +89,17 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+      className="cassette-btn flex items-center space-x-2"
       title={`Current: ${theme === 'auto' ? 'Auto' : theme === 'dark' ? 'Dark' : 'Light'}`}
     >
       {isDark ? (
-        <Sun className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+        <Sun className="h-4 w-4" />
       ) : (
-        <Moon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+        <Moon className="h-4 w-4" />
       )}
+      <span className="font-mono text-xs hidden sm:inline">
+        {theme === 'auto' ? 'AUTO' : theme === 'dark' ? 'LIGHT' : 'DARK'}
+      </span>
     </button>
   )
 } 

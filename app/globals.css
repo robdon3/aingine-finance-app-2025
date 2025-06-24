@@ -2,42 +2,316 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&family=Orbitron:wght@400;700;900&display=swap');
 
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
-    background: linear-gradient(180deg, #232b36 0%, #181e24 100%);
+    background: linear-gradient(180deg, #0a0e14 0%, #1a1f2e 50%, #0a0e14 100%);
     color: #e9ecf3;
+    overflow-x: hidden;
   }
+  
   body {
     @apply bg-cassette-900 text-cassette-50 min-h-screen transition-colors duration-200;
+    position: relative;
   }
+  
+  /* CRT Scanlines Effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      transparent 50%,
+      rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: scanlines 0.1s linear infinite;
+  }
+  
+  @keyframes scanlines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+  }
+  
+  /* Subtle CRT flicker */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
+    pointer-events: none;
+    z-index: 9998;
+    animation: flicker 0.15s infinite;
+  }
+  
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.98; }
+  }
+  
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'IBM Plex Mono', 'JetBrains Mono', Menlo, Monaco, monospace;
-    letter-spacing: 0.01em;
+    font-family: 'Orbitron', 'IBM Plex Mono', 'JetBrains Mono', Menlo, Monaco, monospace;
+    letter-spacing: 0.05em;
     color: #fafafa;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1a1f2e;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #3d5c7a;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5a7a99;
   }
 }
 
 @layer components {
+  /* Enhanced Cassette Panel with more retro styling */
   .cassette-panel {
-    @apply bg-cassette-800/90 border border-cassette-600 rounded-xl shadow-lg p-6;
-    box-shadow: 0 2px 16px 0 rgba(60,80,120,0.18), 0 1.5px 0 0 #3d5c7a;
-    backdrop-filter: blur(2px);
+    @apply bg-cassette-800/95 border-2 border-cassette-600 rounded-xl shadow-2xl p-6 relative overflow-hidden;
+    box-shadow: 
+      0 4px 20px 0 rgba(60, 80, 120, 0.25),
+      0 2px 0 0 #3d5c7a,
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    position: relative;
   }
+  
+  .cassette-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f6ad55, transparent);
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+  
+  /* Retro Terminal Style */
+  .cassette-terminal {
+    @apply bg-cassette-900 border-2 border-cassette-500 rounded-lg p-4 font-mono text-sm;
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.5),
+      0 2px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+  
+  .cassette-terminal::before {
+    content: '>';
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    color: #f6ad55;
+    font-weight: bold;
+  }
+  
+  /* Enhanced Tab Styling */
   .cassette-tab {
-    @apply font-mono px-4 py-2 rounded-lg border-2 border-cassette-600 bg-cassette-700/80 text-cassette-50 shadow-sm transition-all duration-150;
+    @apply font-mono px-4 py-3 rounded-lg border-2 border-cassette-600 bg-cassette-700/80 text-cassette-50 shadow-lg transition-all duration-200 relative overflow-hidden;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   }
+  
+  .cassette-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(246, 173, 85, 0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .cassette-tab:hover::before {
+    left: 100%;
+  }
+  
   .cassette-tab-active {
-    @apply border-orange-400 bg-cassette-900 text-orange-400 shadow-md;
+    @apply border-orange-400 bg-cassette-900 text-orange-400 shadow-xl;
+    box-shadow: 
+      0 0 20px rgba(246, 173, 85, 0.3),
+      0 4px 12px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 0 10px rgba(246, 173, 85, 0.5);
   }
+  
+  /* Enhanced Button Styling */
   .cassette-btn {
-    @apply font-mono px-4 py-2 rounded-lg bg-cassette-700 text-cassette-50 border border-cassette-500 shadow hover:bg-cassette-600 hover:text-orange-400 transition;
+    @apply font-mono px-6 py-3 rounded-lg bg-cassette-700 text-cassette-50 border-2 border-cassette-500 shadow-lg hover:shadow-xl transition-all duration-200 relative overflow-hidden;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   }
+  
+  .cassette-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.3s;
+  }
+  
+  .cassette-btn:hover::before {
+    left: 100%;
+  }
+  
+  .cassette-btn:hover {
+    @apply bg-cassette-600 text-orange-400 border-orange-400;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(246, 173, 85, 0.2);
+  }
+  
   .cassette-btn-primary {
     @apply bg-orange-400 text-cassette-900 border-orange-400 hover:bg-orange-500 hover:text-cassette-50;
+    box-shadow: 0 4px 15px rgba(246, 173, 85, 0.3);
   }
+  
+  .cassette-btn-primary:hover {
+    box-shadow: 0 8px 25px rgba(246, 173, 85, 0.4);
+  }
+  
+  /* Retro Input Styling */
+  .cassette-input {
+    @apply bg-cassette-800 border-2 border-cassette-600 text-cassette-50 placeholder-cassette-400 rounded-lg px-4 py-3 font-mono focus:border-orange-400 focus:outline-none transition-all duration-200;
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .cassette-input:focus {
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.3),
+      0 0 15px rgba(246, 173, 85, 0.3);
+  }
+  
+  /* Status Indicators */
+  .status-indicator {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-mono border-2;
+    text-shadow: 0 0 5px currentColor;
+  }
+  
+  .status-online {
+    @apply bg-green-400/20 text-green-400 border-green-400;
+    box-shadow: 0 0 10px rgba(104, 211, 145, 0.3);
+  }
+  
+  .status-offline {
+    @apply bg-red-400/20 text-red-400 border-red-400;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
+  }
+  
+  .status-warning {
+    @apply bg-yellow-400/20 text-yellow-400 border-yellow-400;
+    box-shadow: 0 0 10px rgba(250, 240, 137, 0.3);
+  }
+  
+  /* Data Display Cards */
+  .data-card {
+    @apply bg-cassette-800/90 border-2 border-cassette-600 rounded-lg p-4 relative overflow-hidden;
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #5a7a99, transparent);
+  }
+  
+  /* Loading Animation */
+  .cassette-loading {
+    @apply inline-block w-4 h-4 border-2 border-cassette-600 border-t-orange-400 rounded-full;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Pulse Animation for Active Elements */
+  .cassette-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  /* Sidebar Styling */
+  .cassette-sidebar {
+    @apply bg-cassette-800/95 border-r-2 border-cassette-600 shadow-2xl;
+    backdrop-filter: blur(8px);
+    box-shadow: 
+      4px 0 20px rgba(0, 0, 0, 0.3),
+      inset -1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Navigation Items */
+  .nav-item {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 relative overflow-hidden;
+  }
+  
+  .nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: #f6ad55;
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+  
+  .nav-item:hover::before,
+  .nav-item.active::before {
+    transform: scaleY(1);
+  }
+  
+  .nav-item:hover {
+    @apply bg-cassette-700/50;
+    transform: translateX(4px);
+  }
+  
+  .nav-item.active {
+    @apply bg-cassette-700 text-orange-400;
+    box-shadow: 0 0 15px rgba(246, 173, 85, 0.2);
+  }
+  
+  /* Keep existing utility classes */
   .aegis-card {
     @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200;
   }

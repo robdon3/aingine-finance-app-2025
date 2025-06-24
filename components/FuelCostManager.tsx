@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Fuel, MapPin, Calculator, TrendingUp, TrendingDown, RefreshCw, ExternalLink, Route } from 'lucide-react'
+import { Fuel, MapPin, Calculator, TrendingUp, RefreshCw, Route, AlertTriangle } from 'lucide-react'
 import GasPriceService, { type GasPriceData, type StateGasPrice } from './GasPriceService'
 
 interface TripCalculation {
@@ -136,15 +136,6 @@ export default function FuelCostManager() {
     setFuelEfficiency('')
   }
 
-  const getTrendIcon = (current: number, previous: number) => {
-    if (current > previous) {
-      return <TrendingUp className="h-4 w-4 text-red-500" />
-    } else if (current < previous) {
-      return <TrendingDown className="h-4 w-4 text-green-500" />
-    }
-    return null
-  }
-
   const formatPrice = (price: number) => {
     return `$${price.toFixed(3)}`
   }
@@ -160,11 +151,11 @@ export default function FuelCostManager() {
 
   if (isLoading) {
     return (
-      <div className="p-4 lg:p-6">
-        <div className="aegis-card">
+      <div className="space-y-6">
+        <div className="cassette-panel">
           <div className="flex items-center justify-center py-8">
-            <RefreshCw className="h-6 w-6 text-aegis-600 animate-spin" />
-            <span className="ml-2 text-gray-700 dark:text-gray-300">Loading fuel cost data...</span>
+            <div className="cassette-loading"></div>
+            <span className="ml-3 text-cassette-400 font-mono">INITIALIZING FUEL COST MODULE...</span>
           </div>
         </div>
       </div>
@@ -173,15 +164,19 @@ export default function FuelCostManager() {
 
   if (error && !nationalData) {
     return (
-      <div className="p-4 lg:p-6">
-        <div className="aegis-card">
+      <div className="space-y-6">
+        <div className="cassette-panel">
           <div className="text-center py-8">
-            <div className="text-red-600 mb-2">{error}</div>
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <AlertTriangle className="h-6 w-6 text-red-400" />
+              <span className="text-red-400 font-mono">{error}</span>
+            </div>
             <button 
               onClick={() => loadGasPrices(true)}
-              className="aegis-button-secondary"
+              className="cassette-btn-primary"
             >
-              Try Again
+              <RefreshCw className="h-4 w-4 mr-2" />
+              RETRY CONNECTION
             </button>
           </div>
         </div>
@@ -190,158 +185,130 @@ export default function FuelCostManager() {
   }
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Fuel Cost Manager</h2>
-        <p className="text-gray-700 dark:text-gray-300">
-          Track gas prices and calculate fuel costs for your trips and daily driving.
-        </p>
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="aegis-card bg-red-50 border border-red-200">
-          <div className="text-red-600 text-sm">{error}</div>
-        </div>
-      )}
-
-      {/* Tab Navigation */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-        <button
-          onClick={() => setActiveTab('prices')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'prices'
-              ? 'bg-white text-aegis-700 shadow-sm'
-              : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
-          }`}
-        >
-          <Fuel className="h-4 w-4" />
-          <span>Gas Prices</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('trip-calculator')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'trip-calculator'
-              ? 'bg-white text-aegis-700 shadow-sm'
-              : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
-          }`}
-        >
-          <Route className="h-4 w-4" />
-          <span>Trip Calculator</span>
-        </button>
-      </div>
-
-      {/* Gas Prices Tab */}
-      {activeTab === 'prices' && nationalData && (
-        <div className="space-y-6">
-          {/* National Average */}
-          <div className="aegis-card">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Fuel className="h-5 w-5 text-aegis-600" />
-                <h3 className="text-lg font-semibold text-gray-900">AAA National Gas Prices</h3>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => loadGasPrices(true)}
-                  disabled={isRefreshing}
-                  className={`text-aegis-600 hover:text-aegis-700 ${isRefreshing ? 'opacity-50' : ''}`}
-                >
-                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </button>
-                <a
-                  href="https://gasprices.aaa.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-aegis-600 hover:text-aegis-700"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-sm text-blue-600 font-medium">Regular</div>
-                <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.regular)}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-sm text-green-600 font-medium">Mid-Grade</div>
-                <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.midgrade)}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-sm text-purple-600 font-medium">Premium</div>
-                <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.premium)}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
-              </div>
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-sm text-orange-600 font-medium">Diesel</div>
-                <div className="text-xl font-bold text-gray-900">{formatPrice(nationalData.diesel)}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">per gallon</div>
-              </div>
-            </div>
-
-            <div className="text-xs text-gray-600 dark:text-gray-400 text-center">
-              Last updated: {new Date(nationalData.lastUpdated).toLocaleString()}
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="cassette-panel">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <Fuel className="h-8 w-8 text-orange-400" />
+            <div>
+              <h2 className="text-2xl font-bold text-cassette-50 font-mono">FUEL COST ANALYZER</h2>
+              <p className="text-cassette-400 font-mono text-sm">REAL-TIME GAS PRICES & TRIP CALCULATIONS</p>
             </div>
           </div>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => loadGasPrices(true)}
+              disabled={isRefreshing}
+              className="cassette-btn flex items-center space-x-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="font-mono text-xs">REFRESH</span>
+            </button>
+          </div>
+        </div>
 
-          {/* Historical Data */}
-          {nationalData.historical && (
-            <div className="aegis-card">
-              <h4 className="text-md font-semibold text-gray-900 mb-3">Historical Trends</h4>
+        {/* Tab Navigation */}
+        <div className="flex space-x-2 mb-6">
+          <button
+            onClick={() => setActiveTab('prices')}
+            className={`cassette-tab ${activeTab === 'prices' ? 'cassette-tab-active' : ''}`}
+          >
+            <TrendingUp className="h-4 w-4 mr-2" />
+            GAS PRICES
+          </button>
+          <button
+            onClick={() => setActiveTab('trip-calculator')}
+            className={`cassette-tab ${activeTab === 'trip-calculator' ? 'cassette-tab-active' : ''}`}
+          >
+            <Calculator className="h-4 w-4 mr-2" />
+            TRIP CALCULATOR
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      {activeTab === 'prices' && (
+        <div className="space-y-6">
+          {/* National Averages */}
+          {nationalData && (
+            <div className="cassette-panel">
+              <div className="flex items-center space-x-2 mb-4">
+                <TrendingUp className="h-5 w-5 text-green-400" />
+                <h3 className="text-lg font-bold text-cassette-50 font-mono">NATIONAL AVERAGES</h3>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: 'Yesterday', value: nationalData.historical.yesterday },
-                  { label: 'Week Ago', value: nationalData.historical.weekAgo },
-                  { label: 'Month Ago', value: nationalData.historical.monthAgo },
-                  { label: 'Year Ago', value: nationalData.historical.yearAgo }
-                ].map((period) => {
-                  const change = nationalData.regular - period.value
-                  return (
-                    <div key={period.label} className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{period.label}</div>
-                      <div className="text-lg font-semibold text-gray-900">{formatPrice(period.value)}</div>
-                      <div className="flex items-center justify-center space-x-1 text-xs">
-                        {getTrendIcon(nationalData.regular, period.value)}
-                        <span className={change > 0 ? 'text-red-600' : 'text-green-600'}>
-                          {change > 0 ? '+' : ''}{change.toFixed(3)}
-                        </span>
-                      </div>
+                <div className="data-card">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono text-cassette-400 uppercase tracking-wider">REGULAR</span>
+                    <div className="status-indicator status-online">
+                      <div className="w-1 h-1 rounded-full bg-current mr-1"></div>
+                      LIVE
                     </div>
-                  )
-                })}
+                  </div>
+                  <p className="text-2xl font-bold text-cassette-50 font-mono">{formatPrice(nationalData.regular)}</p>
+                  <p className="text-xs text-cassette-400 font-mono mt-1">PER GALLON</p>
+                </div>
+                <div className="data-card">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono text-cassette-400 uppercase tracking-wider">MIDGRADE</span>
+                    <div className="status-indicator status-online">
+                      <div className="w-1 h-1 rounded-full bg-current mr-1"></div>
+                      LIVE
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-cassette-50 font-mono">{formatPrice(nationalData.midgrade)}</p>
+                  <p className="text-xs text-cassette-400 font-mono mt-1">PER GALLON</p>
+                </div>
+                <div className="data-card">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono text-cassette-400 uppercase tracking-wider">PREMIUM</span>
+                    <div className="status-indicator status-online">
+                      <div className="w-1 h-1 rounded-full bg-current mr-1"></div>
+                      LIVE
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-cassette-50 font-mono">{formatPrice(nationalData.premium)}</p>
+                  <p className="text-xs text-cassette-400 font-mono mt-1">PER GALLON</p>
+                </div>
+                <div className="data-card">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono text-cassette-400 uppercase tracking-wider">DIESEL</span>
+                    <div className="status-indicator status-online">
+                      <div className="w-1 h-1 rounded-full bg-current mr-1"></div>
+                      LIVE
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-cassette-50 font-mono">{formatPrice(nationalData.diesel)}</p>
+                  <p className="text-xs text-cassette-400 font-mono mt-1">PER GALLON</p>
+                </div>
               </div>
             </div>
           )}
 
-          {/* State Comparison */}
+          {/* State Data */}
           {stateData && (
-            <div className="aegis-card">
-              <div className="flex items-center space-x-2 mb-3">
-                <MapPin className="h-4 w-4 text-aegis-600" />
-                <h4 className="text-md font-semibold text-gray-900">
-                  {stateData.state} vs National Average
-                </h4>
+            <div className="cassette-panel">
+              <div className="flex items-center space-x-2 mb-4">
+                <MapPin className="h-5 w-5 text-blue-400" />
+                <h3 className="text-lg font-bold text-cassette-50 font-mono">STATE DATA: {stateData.state}</h3>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="text-sm text-blue-600 font-medium">Local Regular</div>
-                  <div className="text-lg font-semibold text-gray-900">{formatPrice(stateData.regular)}</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    {stateData.regular > nationalData.regular ? '+' : ''}
-                    {(stateData.regular - nationalData.regular).toFixed(3)} vs national
-                  </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="data-card">
+                  <p className="text-xs font-mono text-cassette-400 uppercase tracking-wider mb-1">REGULAR</p>
+                  <p className="text-xl font-bold text-cassette-50 font-mono">{formatPrice(stateData.regular)}</p>
                 </div>
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <div className="text-sm text-purple-600 font-medium">Local Premium</div>
-                  <div className="text-lg font-semibold text-gray-900">{formatPrice(stateData.premium)}</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    {stateData.premium > nationalData.premium ? '+' : ''}
-                    {(stateData.premium - nationalData.premium).toFixed(3)} vs national
-                  </div>
+                <div className="data-card">
+                  <p className="text-xs font-mono text-cassette-400 uppercase tracking-wider mb-1">MIDGRADE</p>
+                  <p className="text-xl font-bold text-cassette-50 font-mono">{formatPrice(stateData.midgrade)}</p>
+                </div>
+                <div className="data-card">
+                  <p className="text-xs font-mono text-cassette-400 uppercase tracking-wider mb-1">PREMIUM</p>
+                  <p className="text-xl font-bold text-cassette-50 font-mono">{formatPrice(stateData.premium)}</p>
+                </div>
+                <div className="data-card">
+                  <p className="text-xs font-mono text-cassette-400 uppercase tracking-wider mb-1">DIESEL</p>
+                  <p className="text-xl font-bold text-cassette-50 font-mono">{formatPrice(stateData.diesel)}</p>
                 </div>
               </div>
             </div>
@@ -349,133 +316,127 @@ export default function FuelCostManager() {
         </div>
       )}
 
-      {/* Trip Calculator Tab */}
       {activeTab === 'trip-calculator' && (
         <div className="space-y-6">
-          <div className="aegis-card">
+          {/* Trip Calculator Form */}
+          <div className="cassette-panel">
             <div className="flex items-center space-x-2 mb-4">
-              <Calculator className="h-5 w-5 text-aegis-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Trip Cost Calculator</h3>
+              <Calculator className="h-5 w-5 text-teal-400" />
+              <h3 className="text-lg font-bold text-cassette-50 font-mono">TRIP COST CALCULATOR</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Origin *
+                <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                  ORIGIN
                 </label>
                 <input
                   type="text"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
-                  placeholder="Starting location"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+                  className="cassette-input w-full"
+                  placeholder="ENTER ORIGIN"
                 />
               </div>
-              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Destination *
+                <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                  DESTINATION
                 </label>
                 <input
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
-                  placeholder="Ending location"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+                  className="cassette-input w-full"
+                  placeholder="ENTER DESTINATION"
                 />
               </div>
-              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Distance (miles) *
+                <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                  DISTANCE (MILES)
                 </label>
                 <input
                   type="number"
                   value={distance}
                   onChange={(e) => setDistance(e.target.value)}
-                  placeholder="100"
-                  min="0"
-                  step="0.1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+                  className="cassette-input w-full"
+                  placeholder="ENTER DISTANCE"
                 />
               </div>
-              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fuel Efficiency (MPG) *
+                <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                  FUEL EFFICIENCY (MPG)
                 </label>
                 <input
                   type="number"
                   value={fuelEfficiency}
                   onChange={(e) => setFuelEfficiency(e.target.value)}
-                  placeholder="30"
-                  min="0"
-                  step="0.1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
+                  className="cassette-input w-full"
+                  placeholder="ENTER MPG"
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fuel Type
-                </label>
-                <select
-                  value={fuelType}
-                  onChange={(e) => setFuelType(e.target.value as 'regular' | 'midgrade' | 'premium' | 'diesel')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
-                >
-                  <option value="regular">Regular</option>
-                  <option value="midgrade">Mid-Grade</option>
-                  <option value="premium">Premium</option>
-                  <option value="diesel">Diesel</option>
-                </select>
-              </div>
-              
-              <div className="flex items-end">
-                <button
-                  onClick={calculateTripCost}
-                  disabled={!origin || !destination || !distance || !fuelEfficiency || !nationalData}
-                  className="aegis-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Calculate Trip Cost
-                </button>
-              </div>
             </div>
-            
-            {nationalData && (
-              <div className="text-xs text-gray-500">
-                Using {fuelType} fuel price: {formatPrice(nationalData[fuelType])}/gal
+
+            <div className="mb-6">
+              <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                FUEL TYPE
+              </label>
+              <select
+                value={fuelType}
+                onChange={(e) => setFuelType(e.target.value as 'regular' | 'midgrade' | 'premium' | 'diesel')}
+                className="cassette-input w-full md:w-64"
+              >
+                <option value="regular">REGULAR</option>
+                <option value="midgrade">MIDGRADE</option>
+                <option value="premium">PREMIUM</option>
+                <option value="diesel">DIESEL</option>
+              </select>
+            </div>
+
+            <button
+              onClick={calculateTripCost}
+              className="cassette-btn-primary flex items-center space-x-2"
+            >
+              <Calculator className="h-4 w-4" />
+              <span className="font-mono">CALCULATE TRIP COST</span>
+            </button>
+
+            {error && (
+              <div className="mt-4 flex items-center space-x-2 p-3 bg-red-400/20 border border-red-400 rounded-lg">
+                <AlertTriangle className="h-4 w-4 text-red-400" />
+                <p className="text-sm text-red-400 font-mono">{error}</p>
               </div>
             )}
           </div>
 
           {/* Trip Calculations History */}
           {tripCalculations.length > 0 && (
-            <div className="aegis-card">
-              <h4 className="text-md font-semibold text-gray-900 mb-3">Recent Trip Calculations</h4>
+            <div className="cassette-panel">
+              <div className="flex items-center space-x-2 mb-4">
+                <Route className="h-5 w-5 text-magenta-400" />
+                <h3 className="text-lg font-bold text-cassette-50 font-mono">TRIP CALCULATIONS</h3>
+              </div>
               <div className="space-y-3">
-                {tripCalculations.map((trip) => (
-                  <div key={trip.id} className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {trip.origin} → {trip.destination}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {trip.distance} miles • {trip.fuelEfficiency} MPG • {trip.fuelType}
-                        </div>
+                {tripCalculations.map((calculation) => (
+                  <div key={calculation.id} className="data-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <Route className="h-4 w-4 text-blue-400" />
+                        <span className="text-sm font-mono text-cassette-50">
+                          {calculation.origin} → {calculation.destination}
+                        </span>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold text-gray-900">
-                          {formatCurrency(trip.fuelCost)}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          @ {formatPrice(trip.gasPrice)}/gal
-                        </div>
+                        <p className="text-lg font-bold text-orange-400 font-mono">
+                          {formatCurrency(calculation.fuelCost)}
+                        </p>
+                        <p className="text-xs text-cassette-400 font-mono">
+                          {calculation.distance} MILES // {calculation.fuelEfficiency} MPG
+                        </p>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Calculated: {new Date(trip.calculationDate).toLocaleString()}
+                    <div className="text-xs text-cassette-400 font-mono">
+                      FUEL: {calculation.fuelType.toUpperCase()} @ {formatPrice(calculation.gasPrice)} {'//'} 
+                      {new Date(calculation.calculationDate).toLocaleDateString()}
                     </div>
                   </div>
                 ))}
@@ -484,19 +445,6 @@ export default function FuelCostManager() {
           )}
         </div>
       )}
-
-      {/* Data Source Info */}
-      <div className="text-xs text-gray-500 text-center">
-        Data source: {nationalData?.source || 'AAA Gas Prices'} • 
-        <a 
-          href="https://gasprices.aaa.com/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-aegis-600 hover:text-aegis-700 ml-1"
-        >
-          View on AAA
-        </a>
-      </div>
     </div>
   )
 } 

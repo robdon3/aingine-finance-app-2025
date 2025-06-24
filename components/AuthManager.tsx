@@ -3,9 +3,8 @@
 import React, { useState, createContext, useContext, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { storageManager } from '../lib/storageManager'
-import { Shield, Database, Globe } from 'lucide-react'
+import { Shield, Database, AlertTriangle } from 'lucide-react'
 import { sha256 } from 'js-sha256'
-import { ForgotPasswordForm } from './ForgotPasswordForm'
 
 // Types
 export interface UserAccount {
@@ -168,8 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       return false;
-    } catch (error) {
-      console.error('Error importing user data:', error);
+    } catch {
       return false;
     }
   };
@@ -195,8 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       return false;
-    } catch (error) {
-      console.error('Authentication error:', error);
+    } catch {
       return false;
     }
   };
@@ -249,8 +246,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, newUser.id);
       return { success: true };
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch {
       return { 
         success: false, 
         error: 'An error occurred during registration' 
@@ -328,8 +324,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       return data;
-    } catch (error) {
-      console.error('Forgot password error:', error);
+    } catch {
       return { 
         success: false, 
         error: 'An error occurred while processing your request' 
@@ -369,201 +364,177 @@ export const useAuth = () => {
 
 // Simple Login Form Component
 export function LoginForm() {
-  const { login, register } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegister, setIsRegister] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [storagePreference, setStoragePreference] = useState<'local' | 'cloud'>('cloud');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true)
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { login, register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
     try {
-      if (isRegister) {
-        const result = await register(username, email, password, storagePreference);
-        if (!result.success) {
-          setError(result.error || 'Registration failed');
+      if (isLogin) {
+        const success = await login(username, password)
+        if (!success) {
+          setError('Invalid username or password')
         }
       } else {
-        const success = await login(username, password);
-        if (!success) {
-          setError('Login failed. Check username and password.');
+        const result = await register(username, email, password)
+        if (!result.success) {
+          setError(result.error || 'Registration failed')
         }
       }
-    } catch (error) {
-      console.error('Authentication error:', error);
-      setError('An error occurred. Please try again.');
+    } catch {
+      setError('An unexpected error occurred')
     } finally {
-      setIsLoading(false);
+      setLoading(false)
     }
-  };
-
-  if (showForgotPassword) {
-    return (
-      <ForgotPasswordForm onBackToLogin={() => setShowForgotPassword(false)} />
-    );
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-        <div className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Shield className="h-8 w-8 text-aegis-600" />
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Aingen</h2>
-          </div>
-          <p className="text-gray-700 dark:text-gray-300">{isRegister ? 'Create a new account' : 'Sign in to your account'}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Engine for the People</p>
-        </div>
-        
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Username
-            </label>
-            <input 
-              type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              placeholder="Enter username" 
-              required 
-              disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
-            />
-          </div>
-          
-          {isRegister && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email
-              </label>
-              <input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="Enter email" 
-                required 
-                disabled={isLoading}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
-              />
-            </div>
-          )}
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
-            </label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="Enter password" 
-              required 
-              disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
-            />
-            {isRegister && (
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                Password must be at least 6 characters long
-              </p>
-            )}
-          </div>
-
-          {!isRegister && (
-            <div className="text-right">
-              <button
-                type="button"
-                onClick={() => setShowForgotPassword(true)}
-                disabled={isLoading}
-                className="text-sm text-aegis-600 dark:text-aegis-400 hover:text-aegis-700 dark:hover:text-aegis-300 hover:underline disabled:opacity-50"
-              >
-                Forgot your password?
-              </button>
-            </div>
-          )}
-
-          {isRegister && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Storage Preference
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStoragePreference('local')}
-                  disabled={isLoading}
-                  className={`p-4 border rounded-lg text-left transition-colors ${
-                    storagePreference === 'local'
-                      ? 'border-aegis-500 bg-aegis-50 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
-                  } disabled:opacity-50`}
-                >
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Database className="h-4 w-4" />
-                    <span className="font-medium">Local Storage</span>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Data stays on your device. Maximum privacy, works offline.
-                  </p>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => setStoragePreference('cloud')}
-                  disabled={isLoading}
-                  className={`p-4 border rounded-lg text-left transition-colors ${
-                    storagePreference === 'cloud'
-                      ? 'border-aegis-500 bg-aegis-50 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
-                  } disabled:opacity-50`}
-                >
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Globe className="h-4 w-4" />
-                    <span className="font-medium">Cloud Storage</span>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Sync across devices. Automatic backups, access anywhere.
-                  </p>
-                </button>
+    <div className="min-h-screen bg-cassette-900 flex items-center justify-center p-4">
+      {/* CRT Scanlines Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cassette-800/20 to-transparent"></div>
+      </div>
+      
+      <div className="w-full max-w-md z-20 relative">
+        {/* Main Login Panel */}
+        <div className="cassette-panel">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <div className="relative">
+                <Shield className="h-12 w-12 text-orange-400" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-cassette-50 font-mono tracking-wider">AEGIS ENGINE</h1>
+                <p className="text-cassette-400 font-mono text-sm">v2.1.0 // SECURE ACCESS</p>
               </div>
             </div>
-          )}
-          
-          {error && (
-            <div className="p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            
+            {/* System Status */}
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <div className="status-indicator status-online">
+                <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+                SYSTEM ONLINE
+              </div>
+              <div className="status-indicator status-online">
+                <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+                ENCRYPTED
+              </div>
             </div>
-          )}
-          
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className="w-full bg-aegis-600 hover:bg-aegis-700 disabled:bg-aegis-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Processing...' : (isRegister ? 'Create Account' : 'Sign In')}
-          </button>
-        </form>
-        
-        <div className="text-center">
-          <button 
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError('');
-              setStoragePreference('cloud');
-            }} 
-            disabled={isLoading}
-            className="text-sm text-aegis-600 dark:text-aegis-400 hover:text-aegis-700 dark:hover:text-aegis-300 hover:underline disabled:opacity-50"
-          >
-            {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register"}
-          </button>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username Field */}
+            <div>
+              <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                USERNAME
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="cassette-input w-full"
+                placeholder="ENTER USERNAME"
+                required
+              />
+            </div>
+
+            {/* Email Field (Registration only) */}
+            {!isLogin && (
+              <div>
+                <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                  EMAIL ADDRESS
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="cassette-input w-full"
+                  placeholder="ENTER EMAIL"
+                  required
+                />
+              </div>
+            )}
+
+            {/* Password Field */}
+            <div>
+              <label className="block text-xs font-mono text-cassette-400 uppercase tracking-wider mb-2">
+                PASSWORD
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="cassette-input w-full"
+                placeholder="ENTER PASSWORD"
+                required
+              />
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="flex items-center space-x-2 p-3 bg-red-400/20 border border-red-400 rounded-lg">
+                <AlertTriangle className="h-4 w-4 text-red-400" />
+                <p className="text-sm text-red-400 font-mono">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="cassette-btn-primary w-full flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <div className="cassette-loading"></div>
+                  <span className="font-mono">PROCESSING...</span>
+                </>
+              ) : (
+                <>
+                  <Database className="h-4 w-4" />
+                  <span className="font-mono">{isLogin ? 'AUTHENTICATE' : 'REGISTER'}</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Toggle Login/Register */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => {
+                setIsLogin(!isLogin)
+                setError('')
+              }}
+              className="text-cassette-400 hover:text-orange-400 font-mono text-sm transition-colors"
+            >
+              {isLogin ? 'CREATE NEW ACCOUNT' : 'RETURN TO LOGIN'}
+            </button>
+          </div>
+        </div>
+
+        {/* System Info Footer */}
+        <div className="mt-6 text-center">
+          <div className="cassette-terminal">
+            <div className="text-xs text-cassette-400 font-mono space-y-1">
+              <div>SYSTEM: AEGIS ENGINE v2.1.0</div>
+              <div>STATUS: OPERATIONAL</div>
+              <div>SECURITY: ENCRYPTED CONNECTION</div>
+              <div>TIME: {new Date().toLocaleTimeString()}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 } 
