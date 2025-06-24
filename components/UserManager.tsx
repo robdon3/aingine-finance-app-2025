@@ -83,30 +83,41 @@ export function UserManager() {
     
     setUpdatingStorage(true);
     try {
-      // Update user preferences
       await updateUser({
+        ...currentUser,
         preferences: {
           ...currentUser.preferences,
           storagePreference: preference,
-          privacyLevel: preference === 'local' ? 'local' : 'cloud'
-        }
+        },
       });
-      
-      alert(`Storage preference updated to ${preference === 'local' ? 'local storage' : 'cloud storage'}`);
-    } catch {
-      alert('Error updating storage preference');
+    } catch (error) {
+      console.error('Error updating storage preference:', error);
     } finally {
       setUpdatingStorage(false);
     }
   };
 
   const getStorageIcon = (preference: 'local' | 'cloud') => {
-    return preference === 'cloud' ? <Cloud className="h-4 w-4" /> : <HardDrive className="h-4 w-4" />;
+    return preference === 'local' ? <HardDrive className="h-4 w-4" /> : <Cloud className="h-4 w-4" />;
   };
 
   const getStorageLabel = (preference: 'local' | 'cloud') => {
-    return preference === 'cloud' ? 'Cloud Storage' : 'Local Storage';
+    return preference === 'local' ? 'Local Storage' : 'Cloud Storage';
   };
+
+  // Ensure currentUser has preferences with default values
+  const safeCurrentUser = currentUser ? {
+    ...currentUser,
+    preferences: {
+      ...(currentUser.preferences || {}),
+      theme: currentUser.preferences?.theme || 'auto',
+      currency: currentUser.preferences?.currency || 'USD',
+      timezone: currentUser.preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      notifications: currentUser.preferences?.notifications ?? true,
+      privacyLevel: currentUser.preferences?.privacyLevel || 'cloud',
+      storagePreference: currentUser.preferences?.storagePreference || 'cloud',
+    }
+  } : null;
 
   return (
     <div className="p-4 lg:p-6 space-y-6">
@@ -127,7 +138,7 @@ export function UserManager() {
       </div>
 
       {/* Storage Preference Control */}
-      {currentUser && (
+      {safeCurrentUser && (
         <div className="aegis-card">
           <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
             <Database className="h-5 w-5 text-aegis-600" />
@@ -136,13 +147,13 @@ export function UserManager() {
           
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center space-x-3">
-              {getStorageIcon(currentUser.preferences.storagePreference)}
+              {getStorageIcon(safeCurrentUser.preferences.storagePreference)}
               <div>
                 <div className="font-medium text-gray-900">
-                  Current: {getStorageLabel(currentUser.preferences.storagePreference)}
+                  Current: {getStorageLabel(safeCurrentUser.preferences.storagePreference)}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {currentUser.preferences.storagePreference === 'local' 
+                  {safeCurrentUser.preferences.storagePreference === 'local' 
                     ? 'Data stored locally on your device' 
                     : 'Data synced to secure cloud storage'}
                 </div>
@@ -152,9 +163,9 @@ export function UserManager() {
             <div className="flex space-x-2">
               <button
                 onClick={() => handleStoragePreferenceChange('local')}
-                disabled={updatingStorage || currentUser.preferences.storagePreference === 'local'}
+                disabled={updatingStorage || safeCurrentUser.preferences.storagePreference === 'local'}
                 className={`px-3 py-1 text-sm rounded-md flex items-center space-x-1 ${
-                  currentUser.preferences.storagePreference === 'local'
+                  safeCurrentUser.preferences.storagePreference === 'local'
                     ? 'bg-blue-100 text-blue-700 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
@@ -165,9 +176,9 @@ export function UserManager() {
               
               <button
                 onClick={() => handleStoragePreferenceChange('cloud')}
-                disabled={updatingStorage || currentUser.preferences.storagePreference === 'cloud'}
+                disabled={updatingStorage || safeCurrentUser.preferences.storagePreference === 'cloud'}
                 className={`px-3 py-1 text-sm rounded-md flex items-center space-x-1 ${
-                  currentUser.preferences.storagePreference === 'cloud'
+                  safeCurrentUser.preferences.storagePreference === 'cloud'
                     ? 'bg-green-100 text-green-700 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
@@ -218,7 +229,22 @@ export function UserManager() {
         <div className="space-y-3">
           {users.map((user) => {
             const stats = userStats[user.id];
-            const isCurrentUser = currentUser?.id === user.id;
+            const isCurrentUser = safeCurrentUser?.id === user.id;
+            
+            // Ensure user has preferences with default values
+            const safeUser = {
+              ...user,
+              preferences: {
+                ...(user.preferences || {}),
+                theme: user.preferences?.theme || 'auto',
+                currency: user.preferences?.currency || 'USD',
+                timezone: user.preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+                notifications: user.preferences?.notifications ?? true,
+                privacyLevel: user.preferences?.privacyLevel || 'cloud',
+                storagePreference: user.preferences?.storagePreference || 'cloud',
+              }
+            };
+            
             if (!stats || typeof stats !== 'object' || stats === null) {
               return <div key={user.id} className="p-4 rounded-lg border border-gray-200 bg-white">Loading user stats...</div>;
             }
@@ -238,8 +264,8 @@ export function UserManager() {
                           </span>
                         )}
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full flex items-center space-x-1">
-                          {getStorageIcon(user.preferences.storagePreference)}
-                          <span>{user.preferences.storagePreference}</span>
+                          {getStorageIcon(safeUser.preferences.storagePreference)}
+                          <span>{safeUser.preferences.storagePreference}</span>
                         </span>
                       </div>
                       <div className="text-sm text-gray-500">
@@ -330,8 +356,8 @@ export function UserManager() {
                           <span
                             key={section.name}
                             className={`text-xs px-2 py-1 rounded ${
-                              section.hasData 
-                                ? 'bg-green-100 text-green-700' 
+                              section.hasData
+                                ? 'bg-green-100 text-green-700'
                                 : 'bg-gray-100 text-gray-500'
                             }`}
                           >
@@ -408,7 +434,7 @@ export function UserManager() {
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">Privacy Status: Secure</h3>
             <p className="text-sm text-gray-600">
-              {currentUser?.preferences.storagePreference === 'local' 
+              {safeCurrentUser?.preferences.storagePreference === 'local' 
                 ? 'All data is stored locally on your device. No data is transmitted to external servers.'
                 : 'Data is securely synced to cloud storage with encryption. You maintain full control over your information.'
               }
@@ -416,10 +442,10 @@ export function UserManager() {
           </div>
           <div className="text-right">
             <div className="text-sm font-medium text-green-600">
-              {currentUser?.preferences.storagePreference === 'local' ? '100% Private' : 'Cloud Synced'}
+              {safeCurrentUser?.preferences.storagePreference === 'local' ? '100% Private' : 'Cloud Synced'}
             </div>
             <div className="text-xs text-gray-500">
-              {currentUser?.preferences.storagePreference === 'local' ? 'Local storage only' : 'Secure cloud storage'}
+              {safeCurrentUser?.preferences.storagePreference === 'local' ? 'Local storage only' : 'Secure cloud storage'}
             </div>
           </div>
         </div>
