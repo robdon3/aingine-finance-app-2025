@@ -8,6 +8,39 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        cassette: {
+          50: '#f4f6fa', // off-white
+          100: '#e9ecf3',
+          200: '#c7d0e0',
+          300: '#a3b3c7',
+          400: '#7e97b0',
+          500: '#5a7a99', // muted blue
+          600: '#3d5c7a', // deep blue
+          700: '#2c4257',
+          800: '#1b2935',
+          900: '#10151b', // near-black
+        },
+        teal: {
+          400: '#4fd1c5', // pastel teal
+          500: '#38b2ac',
+        },
+        orange: {
+          400: '#f6ad55', // pastel orange
+          500: '#ed8936',
+        },
+        magenta: {
+          400: '#f472b6', // pastel magenta
+          500: '#d53f8c',
+        },
+        green: {
+          400: '#68d391', // pastel green
+          500: '#38a169',
+        },
+        yellow: {
+          400: '#faf089', // pastel yellow
+          500: '#ecc94b',
+        },
+        // Keep aegis and liberty for accent
         aegis: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -31,9 +64,10 @@ module.exports = {
           700: '#bc4510',
           800: '#963814',
           900: '#7a3014',
-        }
+        },
       },
       fontFamily: {
+        mono: ['"IBM Plex Mono"', '"JetBrains Mono"', 'Menlo', 'Monaco', 'monospace'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
