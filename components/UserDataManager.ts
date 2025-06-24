@@ -1,4 +1,5 @@
 import { useAuth } from './AuthManager'
+import { useCallback } from 'react'
 
 // Hook for easy access to user data management
 export const useUserData = () => {
@@ -8,55 +9,60 @@ export const useUserData = () => {
     throw new Error('useUserData must be used within an authenticated context')
   }
 
-  return {
-    // Get all user data
-    getAllData: async () => await getUserData(currentUser.id),
-    
-    // Get specific section data
-    getSection: async (section: string) => {
-      const allData = await getUserData(currentUser.id)
-      if (typeof allData !== 'object' || allData === null) return null;
-      const dataObj = allData as { [key: string]: unknown };
-      return dataObj[section] || null
-    },
-    
-    // Update specific section
-    updateSection: async (section: string, data: unknown) => {
-      return await updateUserDataSection(currentUser.id, section, data)
-    },
-    
-    // Clear all user data
-    clearAllData: async () => await clearUserData(currentUser.id),
-    
-    // Get data statistics
-    getStats: async () => {
-      const allData = await getUserData(currentUser.id)
-      if (typeof allData !== 'object' || allData === null) {
-        return { totalSections: 0, dataSize: 0, sections: [] };
-      }
-      const dataObj = allData as { [key: string]: unknown };
-      return {
-        totalSections: Object.keys(dataObj).length,
-        dataSize: JSON.stringify(dataObj).length,
-        sections: Object.keys(dataObj).map(section => {
-          const sectionData = dataObj[section];
-          return {
-            name: section,
-            hasData: typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1,
-            lastUpdated: (typeof sectionData === 'object' && sectionData !== null && 'lastUpdated' in sectionData) ? (sectionData as { lastUpdated?: string }).lastUpdated || '' : ''
-          }
-        })
-      }
-    },
-    
-    // Check if section has meaningful data
-    hasData: async (section: string) => {
-      const allData = await getUserData(currentUser.id)
-      if (typeof allData !== 'object' || allData === null) return false;
-      const dataObj = allData as { [key: string]: unknown };
-      const sectionData = dataObj[section]
-      return sectionData && typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1
+  const getAllData = useCallback(async () => {
+    return await getUserData(currentUser.id)
+  }, [currentUser.id, getUserData])
+
+  const getSection = useCallback(async (section: string) => {
+    const allData = await getUserData(currentUser.id)
+    if (typeof allData !== 'object' || allData === null) return null;
+    const dataObj = allData as { [key: string]: unknown };
+    return dataObj[section] || null
+  }, [currentUser.id, getUserData])
+
+  const updateSection = useCallback(async (section: string, data: unknown) => {
+    return await updateUserDataSection(currentUser.id, section, data)
+  }, [currentUser.id, updateUserDataSection])
+
+  const clearAllData = useCallback(async () => {
+    return await clearUserData(currentUser.id)
+  }, [currentUser.id, clearUserData])
+
+  const getStats = useCallback(async () => {
+    const allData = await getUserData(currentUser.id)
+    if (typeof allData !== 'object' || allData === null) {
+      return { totalSections: 0, dataSize: 0, sections: [] };
     }
+    const dataObj = allData as { [key: string]: unknown };
+    return {
+      totalSections: Object.keys(dataObj).length,
+      dataSize: JSON.stringify(dataObj).length,
+      sections: Object.keys(dataObj).map(section => {
+        const sectionData = dataObj[section];
+        return {
+          name: section,
+          hasData: typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1,
+          lastUpdated: (typeof sectionData === 'object' && sectionData !== null && 'lastUpdated' in sectionData) ? (sectionData as { lastUpdated?: string }).lastUpdated || '' : ''
+        }
+      })
+    }
+  }, [currentUser.id, getUserData])
+
+  const hasData = useCallback(async (section: string) => {
+    const allData = await getUserData(currentUser.id)
+    if (typeof allData !== 'object' || allData === null) return false;
+    const dataObj = allData as { [key: string]: unknown };
+    const sectionData = dataObj[section]
+    return sectionData && typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1
+  }, [currentUser.id, getUserData])
+
+  return {
+    getAllData,
+    getSection,
+    updateSection,
+    clearAllData,
+    getStats,
+    hasData
   }
 }
 

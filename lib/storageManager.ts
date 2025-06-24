@@ -59,20 +59,43 @@ export const storageManager = {
   // --- User-Specific Data Management (Local or Cloud) ---
   getUserData: async (userId: string, storagePreference: 'local' | 'cloud') => {
     if (storagePreference === 'cloud') {
-      return await cloudStorage.getUserData(userId);
+      try {
+        const cloudData = await cloudStorage.getUserData(userId);
+        if (cloudData !== null) {
+          return cloudData;
+        }
+        // If cloud storage returns null (Redis not available), fall back to local
+        console.log('Cloud storage unavailable, falling back to local storage');
+        return localStorageAdapter.get(`aingen_user_data_${userId}`);
+      } catch (error) {
+        console.error('Error accessing cloud storage, falling back to local:', error);
+        return localStorageAdapter.get(`aingen_user_data_${userId}`);
+      }
     }
     return localStorageAdapter.get(`aingen_user_data_${userId}`);
   },
+  
   setUserData: async (userId: string, data: unknown, storagePreference: 'local' | 'cloud') => {
     if (storagePreference === 'cloud') {
-      return await cloudStorage.setUserData(userId, data);
+      try {
+        await cloudStorage.setUserData(userId, data);
+      } catch (error) {
+        console.error('Failed to store in cloud, falling back to local storage:', error);
+      }
     }
+    // Always store locally as backup
     localStorageAdapter.set(`aingen_user_data_${userId}`, data);
   },
+  
   removeUserData: async (userId: string, storagePreference: 'local' | 'cloud') => {
     if (storagePreference === 'cloud') {
-      return await cloudStorage.removeUserData(userId);
+      try {
+        await cloudStorage.removeUserData(userId);
+      } catch (error) {
+        console.error('Failed to remove from cloud storage:', error);
+      }
     }
+    // Always remove from local storage
     localStorageAdapter.remove(`aingen_user_data_${userId}`);
   },
 }; 
