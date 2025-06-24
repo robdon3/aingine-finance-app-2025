@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { storageManager } from '../../lib/storageManager';
 import { UserAccount } from '../../components/AuthManager';
 
@@ -8,7 +8,7 @@ export default function TestStoragePage() {
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [testUserId, setTestUserId] = useState('test-user-123');
   const [testData, setTestData] = useState('{"test": "data", "timestamp": "' + new Date().toISOString() + '"}');
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
