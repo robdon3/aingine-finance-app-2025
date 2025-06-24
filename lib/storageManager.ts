@@ -12,7 +12,7 @@ const localStorageAdapter = {
       return null;
     }
   },
-  set: (key: string, value: any) => {
+  set: (key: string, value: unknown) => {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
@@ -38,7 +38,7 @@ export const storageManager = {
       if (cloudUsers && cloudUsers.length > 0) {
         return cloudUsers;
       }
-    } catch (error) {
+    } catch {
       console.log('No cloud users found, checking local storage');
     }
     
@@ -63,7 +63,7 @@ export const storageManager = {
     }
     return localStorageAdapter.get(`aegis_user_data_${userId}`);
   },
-  setUserData: async (userId: string, data: any, storagePreference: 'local' | 'cloud') => {
+  setUserData: async (userId: string, data: unknown, storagePreference: 'local' | 'cloud') => {
     if (storagePreference === 'cloud') {
       return await cloudStorage.setUserData(userId, data);
     }

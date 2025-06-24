@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { TrendingUp, Home, Car, GraduationCap, Baby, Target, BarChart3, PieChart, LineChart } from 'lucide-react'
+import { TrendingUp, Home, GraduationCap, Baby, Target, BarChart3, PieChart, LineChart } from 'lucide-react'
 
 // Helper function to check if user chose blank data
 const shouldShowBlankData = () => {
   try {
     const item = localStorage.getItem('aegis_started_with_blank_data')
     return item ? JSON.parse(item) : false
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -55,7 +55,6 @@ export default function NetWorthTracker() {
   const [netWorthData, setNetWorthData] = useState<NetWorthEntry[]>([])
   const [lifeMilestones, setLifeMilestones] = useState<LifeMilestone[]>([])
   const [investments, setInvestments] = useState<Investment[]>([])
-  const [selectedTimeframe, setSelectedTimeframe] = useState('1y')
 
   // Sample data
   useEffect(() => {

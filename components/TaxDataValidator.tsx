@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { CheckCircle, AlertTriangle, RefreshCw, ExternalLink, Download, Upload, Shield, Database, FileText, TrendingUp, TrendingDown, Users, DollarSign, Home, TrendingDown as TrendingDownIcon } from 'lucide-react'
-import { US_LOCATIONS, getLocationByCode, type Location } from '../data/locations'
+import React, { useState, useEffect, useCallback } from 'react'
+import { CheckCircle, RefreshCw, ExternalLink, Upload, Shield, Database, TrendingUp, TrendingDown, Users } from 'lucide-react'
+import { US_LOCATIONS, getLocationByCode } from '../data/locations'
 import TaxAPIService, { type TaxRateData, type APISource } from './TaxAPIService'
 import CensusDataDisplay from './CensusDataDisplay'
 
@@ -28,24 +28,17 @@ interface TaxDataValidation {
 
 export default function TaxDataValidator() {
   const [validations, setValidations] = useState<TaxDataValidation[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [dataSources, setDataSources] = useState<APISource[]>([])
-  const [apiService] = useState(() => TaxAPIService.getInstance())
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
+  const apiService = TaxAPIService.getInstance()
 
-  useEffect(() => {
-    loadDataSources()
-    if (selectedLocation) {
-      validateTaxData(selectedLocation)
-    }
-  }, [selectedLocation])
-
-  const loadDataSources = () => {
+  const loadDataSources = useCallback(() => {
     const sources = apiService.getAvailableSources()
     setDataSources(sources)
-  }
+  }, [apiService])
 
-  const validateTaxData = async (locationCode: string) => {
+  const validateTaxData = useCallback(async (locationCode: string) => {
     setIsLoading(true)
     
     // Get current local tax data
@@ -59,13 +52,13 @@ export default function TaxDataValidator() {
 
     if (savedPolicies) {
       const policies = JSON.parse(savedPolicies)
-      const policy = policies.find((p: any) => p.locationCode === locationCode)
+      const policy = policies.find((p: unknown) => typeof p === 'object' && p !== null && 'locationCode' in p && (p as Record<string, unknown>).locationCode === locationCode)
       if (policy) {
         currentLocal = {
-          gasTax: policy.gasTax,
-          salesTax: policy.salesTax,
-          incomeTax: policy.incomeTax,
-          propertyTax: policy.propertyTax
+          gasTax: (policy as Record<string, unknown>).gasTax as number,
+          salesTax: (policy as Record<string, unknown>).salesTax as number,
+          incomeTax: (policy as Record<string, unknown>).incomeTax as number,
+          propertyTax: (policy as Record<string, unknown>).propertyTax as number
         }
       }
     }
@@ -147,13 +140,22 @@ export default function TaxDataValidator() {
     }
     
     setIsLoading(false)
-  }
+  }, [apiService])
 
-  const hasDiscrepancy = (discrepancy: any): boolean => {
-    return Math.abs(discrepancy.gasTax) > 0.01 ||
-           Math.abs(discrepancy.salesTax) > 0.1 ||
-           Math.abs(discrepancy.incomeTax) > 0.1 ||
-           Math.abs(discrepancy.propertyTax) > 0.1
+  useEffect(() => {
+    loadDataSources()
+    if (selectedLocation) {
+      validateTaxData(selectedLocation)
+    }
+  }, [selectedLocation, loadDataSources, validateTaxData])
+
+  const hasDiscrepancy = (discrepancy: unknown): boolean => {
+    if (typeof discrepancy !== 'object' || discrepancy === null) return false;
+    const d = discrepancy as { gasTax: number; salesTax: number; incomeTax: number; propertyTax: number };
+    return Math.abs(d.gasTax) > 0.01 ||
+           Math.abs(d.salesTax) > 0.1 ||
+           Math.abs(d.incomeTax) > 0.1 ||
+           Math.abs(d.propertyTax) > 0.1;
   }
 
   const updateLocalTaxData = (locationCode: string) => {
@@ -172,9 +174,9 @@ export default function TaxDataValidator() {
 
     // Update localStorage
     const savedPolicies = localStorage.getItem('aegis_tax_policies')
-    let policies = savedPolicies ? JSON.parse(savedPolicies) : []
+    const policies = savedPolicies ? JSON.parse(savedPolicies) : []
     
-    const existingIndex = policies.findIndex((p: any) => p.locationCode === locationCode)
+    const existingIndex = policies.findIndex((p: unknown) => typeof p === 'object' && p !== null && 'locationCode' in p && (p as Record<string, unknown>).locationCode === locationCode)
     if (existingIndex >= 0) {
       policies[existingIndex] = updatedPolicy
     } else {

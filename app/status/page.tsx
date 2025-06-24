@@ -6,11 +6,11 @@ interface SystemStatus {
   redis: {
     status: 'loading' | 'success' | 'error';
     message: string;
-    details?: any;
+    details?: string | null;
   };
   health: {
     status: 'loading' | 'success' | 'error';
-    data?: any;
+    data?: string | null;
   };
 }
 
@@ -35,16 +35,16 @@ export default function StatusPage() {
           redis: {
             status: redisData.success ? 'success' : 'error',
             message: redisData.success ? 'Redis connection successful' : redisData.error,
-            details: redisData
+            details: JSON.stringify(redisData, null, 2)
           }
         }));
-      } catch (error) {
+      } catch {
         setStatus(prev => ({
           ...prev,
           redis: {
             status: 'error',
             message: 'Failed to connect to Redis API',
-            details: error
+            details: null
           }
         }));
       }
@@ -58,14 +58,15 @@ export default function StatusPage() {
           ...prev,
           health: {
             status: 'success',
-            data: healthData
+            data: JSON.stringify(healthData, null, 2)
           }
         }));
-      } catch (error) {
+      } catch {
         setStatus(prev => ({
           ...prev,
           health: {
-            status: 'error'
+            status: 'error',
+            data: null
           }
         }));
       }
@@ -116,7 +117,7 @@ export default function StatusPage() {
                 <details className="text-sm">
                   <summary className="cursor-pointer hover:text-gray-700">View Details</summary>
                   <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto">
-                    {JSON.stringify(status.redis.details, null, 2)}
+                    {status.redis.details || ''}
                   </pre>
                 </details>
               )}
@@ -132,7 +133,7 @@ export default function StatusPage() {
                 <details className="text-sm">
                   <summary className="cursor-pointer hover:text-gray-700">View Health Data</summary>
                   <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto">
-                    {JSON.stringify(status.health.data, null, 2)}
+                    {status.health.data || ''}
                   </pre>
                 </details>
               )}

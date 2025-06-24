@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Calculator, Clock, DollarSign, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Calculator, Clock, TrendingUp, AlertTriangle } from 'lucide-react'
 
 interface TimeValueCalculation {
   item: string

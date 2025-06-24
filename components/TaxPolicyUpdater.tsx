@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { RefreshCw, AlertTriangle, CheckCircle, Calendar, TrendingUp, TrendingDown, Edit3, Save } from 'lucide-react'
-import { US_LOCATIONS, getLocationByCode, type Location } from '../data/locations'
+import { AlertTriangle, CheckCircle, Edit3, Save, TrendingUp, TrendingDown } from 'lucide-react'
+import { US_LOCATIONS, getLocationByCode } from '../data/locations'
 
 interface TaxPolicyChange {
   id: string
@@ -31,7 +31,6 @@ interface TaxPolicyData {
 export default function TaxPolicyUpdater() {
   const [taxPolicies, setTaxPolicies] = useState<TaxPolicyData[]>([])
   const [policyChanges, setPolicyChanges] = useState<TaxPolicyChange[]>([])
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [editingPolicy, setEditingPolicy] = useState<TaxPolicyData | null>(null)
 
@@ -234,7 +233,7 @@ export default function TaxPolicyUpdater() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Tax Type</label>
             <select
               value={newChange.taxType}
-              onChange={(e) => setNewChange({ ...newChange, taxType: e.target.value as any })}
+              onChange={(e) => setNewChange({ ...newChange, taxType: e.target.value as TaxPolicyChange['taxType'] })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
             >
               <option value="gasTax">Gas Tax</option>

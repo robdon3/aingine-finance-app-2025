@@ -6,7 +6,7 @@ import { Shield, Lock, Eye, EyeOff, Database, Server, Smartphone, Globe } from '
 interface PrivacyFeature {
   title: string
   description: string
-  icon: React.ComponentType<any>
+  icon: React.ComponentType<{ className?: string }>
   status: 'active' | 'inactive'
 }
 
@@ -194,7 +194,7 @@ export default function PrivacyGuard() {
               <div>
                 <h4 className="font-semibold text-gray-900">No Surveillance</h4>
                 <p className="text-sm text-gray-600">
-                  We don't track your behavior, collect analytics, or build profiles of your activities.
+                  We don&apos;t track your behavior, collect analytics, or build profiles of your activities.
                 </p>
               </div>
             </div>
@@ -221,11 +221,11 @@ export default function PrivacyGuard() {
           <h3 className="text-xl font-bold text-gray-900 mb-2">Our Commitment to You</h3>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Project Aegis is built on the principle that technology should serve human flourishing, 
-            not extract value from human attention. Your privacy is not a feature—it's the foundation 
+            not extract value from human attention. Your privacy is not a feature—it&apos;s the foundation 
             of everything we build.
           </p>
           <div className="mt-4 text-sm text-gray-500">
-            "We hold these truths to be self-evident, that all people are endowed with certain unalienable rights..."
+            &quot;We hold these truths to be self-evident, that all people are endowed with certain unalienable rights...&quot;
           </div>
         </div>
       </div>

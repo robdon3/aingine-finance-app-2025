@@ -214,7 +214,7 @@ export class TaxAPIService {
       })
 
       const results = await Promise.all(promises)
-      const taxData: any = {}
+      const taxData: Record<string, number> = {}
       let latestDate = ''
       
       results.forEach(({ key, value, date }) => {
@@ -245,11 +245,11 @@ export class TaxAPIService {
     }
   }
 
-  private async fetchStateSpecificData(locationCode: string): Promise<any> {
+  private async fetchStateSpecificData(locationCode: string): Promise<Record<string, number>> {
     try {
       // Use hardcoded state tax data since Census API endpoints are not available
       // This data is based on Tax Foundation and other reliable sources
-      const stateTaxData: Record<string, any> = {
+      const stateTaxData: Record<string, Record<string, number>> = {
         'AL': { gasTax: 0.28, salesTax: 4.0, incomeTax: 5.0, propertyTax: 0.42 },
         'AK': { gasTax: 0.0895, salesTax: 0.0, incomeTax: 0.0, propertyTax: 1.19 },
         'AZ': { gasTax: 0.19, salesTax: 5.6, incomeTax: 4.5, propertyTax: 0.72 },
@@ -360,7 +360,7 @@ export class TaxAPIService {
     const now = Date.now()
     let expired = 0
     
-    Array.from(this.cache.entries()).forEach(([_, entry]) => {
+    Array.from(this.cache.entries()).forEach(([, entry]) => {
       if (now - entry.timestamp > this.CACHE_DURATION) {
         expired++
       }
@@ -381,7 +381,7 @@ export class TaxAPIService {
   }
 
   // Search for relevant FRED series using the search endpoint
-  public async searchFREDSeries(searchText: string): Promise<any[]> {
+  public async searchFREDSeries(searchText: string): Promise<Record<string, unknown>[]> {
     try {
       const response = await fetch(
         `/api/fred/search?search_text=${encodeURIComponent(searchText)}&api_key=${this.getFREDApiKey()}&file_type=json&limit=10`
@@ -400,7 +400,7 @@ export class TaxAPIService {
   }
 
   // Get series information using the fred/series endpoint
-  public async getSeriesInfo(seriesId: string): Promise<any> {
+  public async getSeriesInfo(seriesId: string): Promise<Record<string, unknown> | null> {
     try {
       const response = await fetch(
         `/api/fred/series?series_id=${seriesId}&api_key=${this.getFREDApiKey()}&file_type=json`

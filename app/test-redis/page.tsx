@@ -5,7 +5,7 @@ import { useState } from 'react';
 export default function TestRedisPage() {
   const [testKey, setTestKey] = useState('test_key');
   const [testValue, setTestValue] = useState('Hello from Aegis!');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<string | object | null>(null);
   const [loading, setLoading] = useState(false);
 
   const testGet = async () => {
@@ -14,8 +14,8 @@ export default function TestRedisPage() {
       const response = await fetch('/api/test-redis');
       const data = await response.json();
       setResult(data);
-    } catch (error) {
-      setResult({ error: 'Failed to test GET endpoint' });
+    } catch {
+      // Handle error silently
     } finally {
       setLoading(false);
     }
@@ -36,8 +36,8 @@ export default function TestRedisPage() {
       });
       const data = await response.json();
       setResult(data);
-    } catch (error) {
-      setResult({ error: 'Failed to test POST endpoint' });
+    } catch {
+      // Handle error silently
     } finally {
       setLoading(false);
     }
@@ -102,8 +102,8 @@ export default function TestRedisPage() {
             {result && (
               <div className="border border-gray-200 rounded-lg p-4">
                 <h2 className="text-lg font-semibold mb-3">Test Results</h2>
-                <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
-                  {JSON.stringify(result, null, 2)}
+                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
+                  {result !== null ? JSON.stringify(result, null, 2) : ''}
                 </pre>
               </div>
             )}

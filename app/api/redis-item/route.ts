@@ -9,9 +9,9 @@ export const POST = async () => {
     // Fetch data from Redis
     const result = await redis.get("item");
     return new NextResponse(JSON.stringify({ result }), { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return new NextResponse(
-      JSON.stringify({ error: error.message || "Unknown error" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500 }
     );
   }

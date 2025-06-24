@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { CensusAPIService, CensusData } from './CensusAPIService'
 import { 
   Users, 
@@ -24,16 +24,10 @@ export default function CensusDataDisplay({ stateCode, showAttribution = true }:
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [cacheStatus, setCacheStatus] = useState<{ total: number; expired: number }>({ total: 0, expired: 0 })
-  const [rateLimitStatus, setRateLimitStatus] = useState<{ requestsThisMinute: number; limit: number }>({ requestsThisMinute: 0, limit: 100 })
 
   const censusService = CensusAPIService.getInstance()
 
-  useEffect(() => {
-    loadCensusData()
-    updateStatus()
-  }, [stateCode])
-
-  const loadCensusData = async () => {
+  const loadCensusData = useCallback(async () => {
     if (!stateCode) return
 
     setLoading(true)
@@ -47,12 +41,16 @@ export default function CensusDataDisplay({ stateCode, showAttribution = true }:
     } finally {
       setLoading(false)
     }
-  }
+  }, [stateCode, censusService])
 
-  const updateStatus = () => {
+  const updateStatus = useCallback(() => {
     setCacheStatus(censusService.getCacheStatus())
-    setRateLimitStatus(censusService.getRateLimitStatus())
-  }
+  }, [censusService])
+
+  useEffect(() => {
+    loadCensusData()
+    updateStatus()
+  }, [loadCensusData, updateStatus])
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('en-US').format(num)
@@ -170,9 +168,9 @@ export default function CensusDataDisplay({ stateCode, showAttribution = true }:
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Calendar className="h-4 w-4" />
-            <span>Last Updated: {new Date(censusData.lastUpdated).toLocaleDateString()}</span>
+            <span>Last Updated: {censusData.lastUpdated ? new Date(censusData.lastUpdated).toLocaleDateString() : 'N/A'}</span>
           </div>
-          <p className="text-sm text-gray-600 mt-1">Source: {censusData.source}</p>
+          <p className="text-sm text-gray-600 mt-1">Source: {censusData.source || 'N/A'}</p>
           <p className="text-xs text-gray-500 mt-1">
             Data from <a href="https://www.census.gov/data/developers/updates/new-discovery-tool.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Census Bureau Discovery Service</a>
           </p>

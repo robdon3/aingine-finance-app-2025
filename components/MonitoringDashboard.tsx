@@ -3,10 +3,26 @@
 import React, { useState, useEffect } from 'react'
 import { Activity, CheckCircle, AlertTriangle, XCircle, RefreshCw, Server, Database, GitBranch, Clock, TrendingUp } from 'lucide-react'
 
+interface VercelDetails {
+  latestDeployment?: string
+  totalDeployments?: string | number
+}
+
+interface RedisDetails {
+  connection?: string
+  operations?: string | number
+}
+
+interface GitHubDetails {
+  repository?: string
+  visibility?: string
+  lastCommit?: string
+}
+
 interface HealthStatus {
   status: 'healthy' | 'warning' | 'error' | 'unknown'
   lastCheck: string | null
-  details: any
+  details: VercelDetails | RedisDetails | GitHubDetails | Record<string, unknown>
 }
 
 interface HealthReport {
@@ -207,13 +223,13 @@ export default function MonitoringDashboard() {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Latest Deployment:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {healthReport.services.vercel.details.latestDeployment}
+                    {(healthReport.services.vercel.details as VercelDetails).latestDeployment}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Total Deployments:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {healthReport.services.vercel.details.totalDeployments}
+                    {(healthReport.services.vercel.details as VercelDetails).totalDeployments}
                   </span>
                 </div>
               </>
@@ -250,13 +266,13 @@ export default function MonitoringDashboard() {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Connection:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {healthReport.services.redis.details.connection}
+                    {(healthReport.services.redis.details as RedisDetails).connection}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Operations:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {healthReport.services.redis.details.operations}
+                    {(healthReport.services.redis.details as RedisDetails).operations}
                   </span>
                 </div>
               </>
@@ -293,17 +309,17 @@ export default function MonitoringDashboard() {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Repository:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {healthReport.services.github.details.repository}
+                    {(healthReport.services.github.details as GitHubDetails).repository}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Visibility:</span>
                   <span className="text-sm text-gray-900 dark:text-gray-100">
-                    {healthReport.services.github.details.visibility}
+                    {(healthReport.services.github.details as GitHubDetails).visibility}
                   </span>
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  Last commit: {healthReport.services.github.details.lastCommit}
+                  Last commit: {(healthReport.services.github.details as GitHubDetails).lastCommit}
                 </div>
               </>
             )}

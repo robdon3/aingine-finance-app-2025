@@ -28,7 +28,7 @@ export async function getUserData(userId: string) {
   }
 }
 
-export async function setUserData(userId: string, data: any) {
+export async function setUserData(userId: string, data: unknown) {
   if (!redis) {
     console.warn('Redis not available, skipping setUserData')
     return
@@ -71,7 +71,7 @@ export async function getUsers() {
   }
 }
 
-export async function setUsers(users: any[]) {
+export async function setUsers(users: unknown[]) {
   if (!redis) {
     console.warn('Redis not available, skipping setUsers')
     return

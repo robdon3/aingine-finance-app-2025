@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { User, GraduationCap, Baby, Briefcase, Target, Calendar, TrendingUp, BookOpen, Home, Car } from 'lucide-react'
+import { User, GraduationCap, Baby, Briefcase, Target, Calendar, TrendingUp, BookOpen } from 'lucide-react'
 
 // Helper function to check if user chose blank data
 const shouldShowBlankData = () => {
   try {
     const item = localStorage.getItem('aegis_started_with_blank_data')
     return item ? JSON.parse(item) : false
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -58,14 +58,14 @@ export default function LifeContextManager() {
   const [lifeStages, setLifeStages] = useState<LifeStage[]>([])
   const [lifeGoals, setLifeGoals] = useState<LifeGoal[]>([])
   const [educationPath, setEducationPath] = useState<EducationPath[]>([])
-  const [familyContext, setFamilyContext] = useState<FamilyContext>({
+  const [familyContext] = useState<FamilyContext>({
     maritalStatus: 'single',
     children: 0,
     planningChildren: false,
     dependents: 0,
     familyGoals: []
   })
-  const [currentAge, setCurrentAge] = useState(30)
+  const [currentAge] = useState(30)
 
   useEffect(() => {
     // Only load sample data if user didn't choose blank data

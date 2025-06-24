@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, Settings, RefreshCw, CheckCircle } from 'lucide-react'
 import { US_LOCATIONS, getLocationByCode, type Location } from '../data/locations'
-import GasPriceService, { type StateGasPrice } from './GasPriceService'
+import GasPriceService from './GasPriceService'
 
 interface LocationData {
   gasPrices: {
@@ -33,19 +33,7 @@ export default function LocationManager() {
   const [searchTerm, setSearchTerm] = useState('')
   const gasPriceService = GasPriceService.getInstance()
 
-  // Load saved location on mount
-  useEffect(() => {
-    const savedLocationCode = localStorage.getItem('aegis_selected_location')
-    if (savedLocationCode) {
-      const location = getLocationByCode(savedLocationCode)
-      if (location) {
-        setSelectedLocation(location)
-        loadLocationData(location)
-      }
-    }
-  }, [])
-
-  const loadLocationData = async (location: Location) => {
+  const loadLocationData = useCallback(async (location: Location) => {
     setIsLoading(true)
     
     try {
@@ -115,7 +103,18 @@ export default function LocationManager() {
     }
     
     setIsLoading(false)
-  }
+  }, [gasPriceService])
+
+  useEffect(() => {
+    const savedLocationCode = localStorage.getItem('aegis_selected_location')
+    if (savedLocationCode) {
+      const location = getLocationByCode(savedLocationCode)
+      if (location) {
+        setSelectedLocation(location)
+        loadLocationData(location)
+      }
+    }
+  }, [loadLocationData])
 
   const handleLocationSelect = (location: Location) => {
     setSelectedLocation(location)

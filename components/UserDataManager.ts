@@ -15,11 +15,13 @@ export const useUserData = () => {
     // Get specific section data
     getSection: async (section: string) => {
       const allData = await getUserData(currentUser.id)
-      return allData[section] || null
+      if (typeof allData !== 'object' || allData === null) return null;
+      const dataObj = allData as { [key: string]: unknown };
+      return dataObj[section] || null
     },
     
     // Update specific section
-    updateSection: async (section: string, data: any) => {
+    updateSection: async (section: string, data: unknown) => {
       return await updateUserDataSection(currentUser.id, section, data)
     },
     
@@ -29,58 +31,82 @@ export const useUserData = () => {
     // Get data statistics
     getStats: async () => {
       const allData = await getUserData(currentUser.id)
+      if (typeof allData !== 'object' || allData === null) {
+        return { totalSections: 0, dataSize: 0, sections: [] };
+      }
+      const dataObj = allData as { [key: string]: unknown };
       return {
-        totalSections: Object.keys(allData).length,
-        dataSize: JSON.stringify(allData).length,
-        sections: Object.keys(allData).map(section => ({
-          name: section,
-          hasData: Object.keys(allData[section]).length > 1,
-          lastUpdated: allData[section].lastUpdated
-        }))
+        totalSections: Object.keys(dataObj).length,
+        dataSize: JSON.stringify(dataObj).length,
+        sections: Object.keys(dataObj).map(section => {
+          const sectionData = dataObj[section];
+          return {
+            name: section,
+            hasData: typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1,
+            lastUpdated: (typeof sectionData === 'object' && sectionData !== null && 'lastUpdated' in sectionData) ? (sectionData as { lastUpdated?: string }).lastUpdated || '' : ''
+          }
+        })
       }
     },
     
     // Check if section has meaningful data
     hasData: async (section: string) => {
       const allData = await getUserData(currentUser.id)
-      const sectionData = allData[section]
-      return sectionData && Object.keys(sectionData).length > 1
+      if (typeof allData !== 'object' || allData === null) return false;
+      const dataObj = allData as { [key: string]: unknown };
+      const sectionData = dataObj[section]
+      return sectionData && typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1
     }
   }
+}
+
+function isPlainObject(obj: unknown): obj is Record<string, unknown> {
+  return typeof obj === 'object' && obj !== null && Object.prototype.toString.call(obj) === '[object Object]';
 }
 
 // Utility functions for common data operations
 export const userDataUtils = {
   // Initialize a new section with defaults
-  initializeSection: (section: string, defaults: any) => {
+  initializeSection: (section: string, defaults: unknown) => {
+    if (typeof defaults !== 'object' || defaults === null) {
+      return { lastUpdated: new Date().toISOString() }
+    }
     return {
-      ...defaults,
+      ...(defaults as object),
       lastUpdated: new Date().toISOString()
     }
   },
   
   // Add item to an array section
-  addToArray: (currentArray: any[], newItem: any) => {
-    return [...currentArray, { ...newItem, id: Date.now().toString() }]
+  addToArray: (currentArray: unknown[], newItem: unknown) => {
+    if (isPlainObject(newItem)) {
+      return [...currentArray, Object.assign({}, newItem, { id: Date.now().toString() })];
+    }
+    return currentArray;
   },
   
   // Update item in array section
-  updateInArray: (currentArray: any[], itemId: string, updates: any) => {
-    return currentArray.map(item => 
-      item.id === itemId ? { ...item, ...updates } : item
-    )
+  updateInArray: (currentArray: unknown[], itemId: string, updates: unknown) => {
+    return currentArray.map(item => {
+      if (isPlainObject(item) && 'id' in item && (item as { id?: string }).id === itemId && isPlainObject(updates)) {
+        return { ...item, ...updates };
+      }
+      return item;
+    });
   },
   
   // Remove item from array section
-  removeFromArray: (currentArray: any[], itemId: string) => {
-    return currentArray.filter(item => item.id !== itemId)
+  removeFromArray: (currentArray: unknown[], itemId: string) => {
+    return currentArray.filter(item => isPlainObject(item) && 'id' in item && (item as { id?: string }).id !== itemId)
   },
   
   // Merge data with existing section
-  mergeSection: (existingData: any, newData: any) => {
+  mergeSection: (existingData: unknown, newData: unknown) => {
+    if (typeof existingData !== 'object' || existingData === null) return newData;
+    if (typeof newData !== 'object' || newData === null) return existingData;
     return {
-      ...existingData,
-      ...newData,
+      ...(existingData as object),
+      ...(newData as object),
       lastUpdated: new Date().toISOString()
     }
   }

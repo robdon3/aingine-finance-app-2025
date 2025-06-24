@@ -8,7 +8,7 @@ const shouldShowBlankData = () => {
   try {
     const item = localStorage.getItem('aegis_started_with_blank_data')
     return item ? JSON.parse(item) : false
-  } catch (error) {
+  } catch {
     return false
   }
 }

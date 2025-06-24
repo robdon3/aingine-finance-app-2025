@@ -82,12 +82,12 @@ export class GasPriceService {
     const cached = this.cache.get(cacheKey)
     
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-      return cached.data as any
+      return cached.data as unknown
     }
 
     try {
       const states = await this.fetchStatePricesFromAAA()
-      this.cache.set(cacheKey, { data: states as any, timestamp: Date.now() })
+      this.cache.set(cacheKey, { data: states as unknown, timestamp: Date.now() })
       return states
     } catch (error) {
       console.error('Failed to fetch state gas prices:', error)

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Shield, TrendingUp, Clock, DollarSign, Brain, Lock, Calculator, BarChart3, User, Settings, Database, MapPin, FileText, CheckCircle, Key, Fuel, Menu, X, Activity } from 'lucide-react'
+import React, { useState } from 'react'
+import { Shield, TrendingUp, Clock, DollarSign, Brain, Lock, Calculator, BarChart3, User, MapPin, FileText, CheckCircle, Key, Fuel, Menu, X, Activity } from 'lucide-react'
 import { AuthProvider, useAuth, LoginForm } from '../components/AuthManager'
 import { UserManager } from '../components/UserManager'
 import { ThemeToggle } from '../components/ThemeProvider'
@@ -11,7 +11,6 @@ import TrueCostCalculator from '../components/TrueCostCalculator'
 import FinancialDashboard from '../components/FinancialDashboard'
 import NetWorthTracker from '../components/NetWorthTracker'
 import LifeContextManager from '../components/LifeContextManager'
-import AccountManager from '../components/AccountManager'
 import AIPersonalization from '../components/AIPersonalization'
 import PrivacyGuard from '../components/PrivacyGuard'
 import DataSources from '../components/DataSources'
@@ -41,7 +40,7 @@ const tabs = [
   
   // Setup & Config - Infrequent Use
   { id: 'account-manager', name: 'Account Manager', icon: User, category: 'setup' },
-  { id: 'data-sources', name: 'Data Sources', icon: Database, category: 'setup' },
+  { id: 'data-sources', name: 'Data Sources', icon: BarChart3, category: 'setup' },
   { id: 'fred-api', name: 'FRED API', icon: Key, category: 'setup' },
   { id: 'census-api', name: 'Census API', icon: Key, category: 'setup' },
   { id: 'tax-policy', name: 'Tax Policy', icon: FileText, category: 'setup' },

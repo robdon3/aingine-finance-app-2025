@@ -101,7 +101,7 @@ export default function FREDApiKeyManager() {
               <div>
                 <h4 className="font-medium text-yellow-900">Demo Mode</h4>
                 <p className="text-yellow-800 text-sm mt-1">
-                  You're currently using a demo API key with limited functionality. 
+                  You&apos;re currently using a demo API key with limited functionality. 
                   To access real-time Federal Reserve data, please enter your FRED API key below.
                 </p>
               </div>
@@ -214,7 +214,7 @@ export default function FREDApiKeyManager() {
           
           <div className="flex items-start space-x-2">
             <span className="font-medium">4.</span>
-            <span>Enter your API key above and click "Save & Validate Key"</span>
+            <span>Enter your API key above and click &quot;Save & Validate Key&quot;</span>
           </div>
         </div>
 

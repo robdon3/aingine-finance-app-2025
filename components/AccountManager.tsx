@@ -75,7 +75,7 @@ const storage = {
       return null
     }
   },
-  set: (key: string, value: any) => {
+  set: (key: string, value: unknown) => {
     try {
       localStorage.setItem(key, JSON.stringify(value))
     } catch (error) {
@@ -105,7 +105,6 @@ export default function AccountManager() {
   const [showAddMember, setShowAddMember] = useState(false)
   const [showAddAccount, setShowAddAccount] = useState(false)
   const [showAddPaycheck, setShowAddPaycheck] = useState(false)
-  const [showStartOptions, setShowStartOptions] = useState(false)
   const [startedWithBlankData, setStartedWithBlankData] = useState(false)
 
   // Form state for family member
@@ -166,7 +165,7 @@ export default function AccountManager() {
           name: 'John Doe',
           relationship: 'Self',
           age: 30,
-          education: 'Bachelor\'s',
+          education: 'Bachelor&apos;s',
           income: 75000,
           expenses: 45000,
           goals: ['Buy house', 'Save for retirement'],
@@ -177,7 +176,7 @@ export default function AccountManager() {
           name: 'Jane Doe',
           relationship: 'Spouse',
           age: 28,
-          education: 'Master\'s',
+          education: 'Master&apos;s',
           income: 65000,
           expenses: 40000,
           goals: ['Start business', 'Travel'],
@@ -268,13 +267,6 @@ export default function AccountManager() {
       setPaychecks(samplePaychecks)
     }
   }, [isLoggedIn, familyMembers.length, accounts.length, paychecks.length, startedWithBlankData])
-
-  const handleLogin = () => {
-    setIsLoggedIn(true)
-    setCurrentUser('John Doe')
-    storage.set(STORAGE_KEYS.USER_LOGGED_IN, true)
-    storage.set(STORAGE_KEYS.CURRENT_USER, 'John Doe')
-  }
 
   const startFreshWithBlankData = () => {
     // Clear all data from localStorage to ensure fresh start
@@ -387,7 +379,21 @@ export default function AccountManager() {
     reportLink.click()
   }
 
-  const createCSVExport = (data: any) => {
+  interface ExportData {
+    familyMembers: FamilyMember[];
+    accounts: Account[];
+    paychecks: Paycheck[];
+    dataSummary: {
+      familyMembers: number;
+      accounts: number;
+      paychecks: number;
+      totalNetWorth: number;
+      totalAssets: number;
+      totalLiabilities: number;
+    };
+    [key: string]: unknown;
+  }
+  const createCSVExport = (data: ExportData) => {
     let csv = 'Account Name,Type,Institution,Balance,Owner,Notes\n'
     
     // Add accounts
@@ -412,7 +418,7 @@ export default function AccountManager() {
     return csv
   }
 
-  const createSummaryReport = (data: any) => {
+  const createSummaryReport = (data: ExportData) => {
     let report = 'PROJECT AEGIS - FINANCIAL SUMMARY REPORT\n'
     report += '=' .repeat(50) + '\n\n'
     report += `Generated: ${new Date().toLocaleString()}\n\n`
@@ -436,7 +442,7 @@ export default function AccountManager() {
     report += `Net Worth: $${data.dataSummary.totalNetWorth.toLocaleString()}\n\n`
     
     // Account breakdown
-    const accountTypes = data.accounts.reduce((acc: any, account: Account) => {
+    const accountTypes = data.accounts.reduce((acc: Record<string, number>, account: Account) => {
       acc[account.type] = (acc[account.type] || 0) + account.balance
       return acc
     }, {})
@@ -495,7 +501,7 @@ export default function AccountManager() {
           setFamilyMembers(data.familyMembers || [])
           setAccounts(data.accounts || [])
           setPaychecks(data.paychecks || [])
-        } catch (error) {
+        } catch {
           alert('Error importing data. Please check file format.')
         }
       }
@@ -550,7 +556,7 @@ export default function AccountManager() {
         name: 'Sarah Johnson',
         relationship: 'Self',
         age: 32,
-        education: 'Master\'s in Business',
+        education: 'Master&apos;s in Business',
         income: 85000,
         expenses: 52000,
         goals: ['Buy first home', 'Max out 401(k)', 'Start emergency fund'],
@@ -561,7 +567,7 @@ export default function AccountManager() {
         name: 'Michael Johnson',
         relationship: 'Spouse',
         age: 30,
-        education: 'Bachelor\'s in Engineering',
+        education: 'Bachelor&apos;s in Engineering',
         income: 78000,
         expenses: 48000,
         goals: ['Pay off student loans', 'Save for vacation', 'Invest in side business'],
@@ -625,7 +631,7 @@ export default function AccountManager() {
         institution: 'Wells Fargo',
         balance: 8200,
         owner: 'Michael Johnson',
-        notes: 'Michael\'s primary account'
+        notes: 'Michael&apos;s primary account'
       },
       {
         id: '6',
@@ -701,7 +707,7 @@ export default function AccountManager() {
           other: 175.00
         },
         employer: 'Engineering Solutions',
-        notes: 'Michael\'s bi-weekly paycheck'
+        notes: 'Michael&apos;s bi-weekly paycheck'
       }
     ]
 
@@ -924,7 +930,7 @@ export default function AccountManager() {
                 <li>• 8 different account types (checking, savings, investments, loans)</li>
                 <li>• Sample paycheck data with deductions</li>
                 <li>• Explore all Project Aegis features safely</li>
-                <li>• Data is temporary and won't be saved</li>
+                <li>• Data is temporary and won&apos;t be saved</li>
               </ul>
             </div>
             
@@ -972,7 +978,7 @@ export default function AccountManager() {
             <div>
               <h4 className="font-medium text-blue-900">Sample User Mode</h4>
               <p className="text-sm text-blue-800">
-                You're exploring Project Aegis with sample data. This data is temporary and won't be permanently saved. 
+                You&apos;re exploring Project Aegis with sample data. This data is temporary and won&apos;t be permanently saved. 
                 Feel free to modify, add, or delete data to see how the app works!
               </p>
             </div>

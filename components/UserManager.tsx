@@ -1,15 +1,36 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth, UserAccount } from './AuthManager';
 import { User, Users, LogOut, Download, Upload, Database, Shield, Cloud, HardDrive } from 'lucide-react';
 
 export function UserManager() {
   const { currentUser, logout, switchUser, exportUserData, importUserData, deleteUser, clearUserData, getUserData, updateUser } = useAuth();
   const [users, setUsers] = useState<UserAccount[]>([]);
-  const [showImport, setShowImport] = useState(false);
   const [showDataStats, setShowDataStats] = useState<string | null>(null);
   const [updatingStorage, setUpdatingStorage] = useState(false);
+  const [userStats, setUserStats] = useState<Record<string, unknown>>({});
+
+  const getDataStats = useCallback(async (userId: string) => {
+    const userData = await getUserData(userId);
+    if (typeof userData !== 'object' || userData === null) {
+      return { totalSections: 0, dataSize: 0, sections: [] };
+    }
+    const dataObj = userData as { [key: string]: unknown };
+    const stats = {
+      totalSections: Object.keys(dataObj).length,
+      dataSize: JSON.stringify(dataObj).length,
+      sections: Object.keys(dataObj).map((section: string) => {
+        const sectionData = dataObj[section];
+        return {
+          name: section,
+          hasData: typeof sectionData === 'object' && sectionData !== null && Object.keys(sectionData as object).length > 1,
+          lastUpdated: (typeof sectionData === 'object' && sectionData !== null && 'lastUpdated' in sectionData) ? (sectionData as { lastUpdated?: string }).lastUpdated || '' : ''
+        }
+      }),
+    };
+    return stats;
+  }, [getUserData]);
 
   // This is a temporary solution to get the user list.
   // In a real app, this should come from a shared state or a dedicated user management hook.
@@ -17,6 +38,14 @@ export function UserManager() {
     const allUsers = JSON.parse(localStorage.getItem('aegis_users') || '[]');
     setUsers(allUsers);
   }, [currentUser]);
+
+  useEffect(() => {
+    users.forEach(user => {
+      getDataStats(user.id).then(stats => {
+        setUserStats(prev => ({ ...prev, [user.id]: stats }));
+      });
+    });
+  }, [users, getDataStats]);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -29,12 +58,12 @@ export function UserManager() {
           if (success) {
             const allUsers = JSON.parse(localStorage.getItem('aegis_users') || '[]');
             setUsers(allUsers);
-            setShowImport(false);
+            setShowDataStats(null);
             alert('Data imported successfully!');
           } else {
             alert('Error importing data. Please check file format.');
           }
-        } catch (error) {
+        } catch {
           alert('Error importing data. Please check file format.');
         }
       };
@@ -64,25 +93,11 @@ export function UserManager() {
       });
       
       alert(`Storage preference updated to ${preference === 'local' ? 'local storage' : 'cloud storage'}`);
-    } catch (error) {
+    } catch {
       alert('Error updating storage preference');
     } finally {
       setUpdatingStorage(false);
     }
-  };
-
-  const getDataStats = async (userId: string) => {
-    const userData = await getUserData(userId);
-    const stats = {
-      totalSections: Object.keys(userData).length,
-      dataSize: JSON.stringify(userData).length,
-      sections: Object.keys(userData).map((section: string) => ({
-        name: section,
-        hasData: Object.keys(userData[section]).length > 1,
-        lastUpdated: userData[section].lastUpdated,
-      })),
-    };
-    return stats;
   };
 
   const getStorageIcon = (preference: 'local' | 'cloud') => {
@@ -202,16 +217,12 @@ export function UserManager() {
         </h3>
         <div className="space-y-3">
           {users.map((user) => {
-            const [stats, setStats] = useState<any>(null);
+            const stats = userStats[user.id];
             const isCurrentUser = currentUser?.id === user.id;
-
-            useEffect(() => {
-              getDataStats(user.id).then(setStats);
-            }, [user.id]);
-
-            if (!stats) {
+            if (!stats || typeof stats !== 'object' || stats === null) {
               return <div key={user.id} className="p-4 rounded-lg border border-gray-200 bg-white">Loading user stats...</div>;
             }
+            const safeStats = stats as { totalSections: number; dataSize: number; sections: Array<{ name: string; hasData: boolean; lastUpdated: string }> };
 
             return (
               <div key={user.id} className={`p-4 rounded-lg border ${isCurrentUser ? 'border-aegis-300 bg-aegis-50' : 'border-gray-200 bg-white'}`}>
@@ -235,7 +246,7 @@ export function UserManager() {
                         Created: {new Date(user.createdAt).toLocaleDateString()}
                       </div>
                       <div className="text-xs text-gray-400">
-                        Data: {stats.totalSections} sections, {(stats.dataSize / 1024).toFixed(1)}KB
+                        Data: {safeStats.totalSections} sections, {(safeStats.dataSize / 1024).toFixed(1)}KB
                       </div>
                     </div>
                   </div>
@@ -294,20 +305,20 @@ export function UserManager() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                       <div>
                         <div className="text-gray-500">Total Size</div>
-                        <div className="font-medium">{(stats.dataSize / 1024).toFixed(1)}KB</div>
+                        <div className="font-medium">{(safeStats.dataSize / 1024).toFixed(1)}KB</div>
                       </div>
                       <div>
                         <div className="text-gray-500">Sections</div>
-                        <div className="font-medium">{stats.totalSections}</div>
+                        <div className="font-medium">{safeStats.totalSections}</div>
                       </div>
                       <div>
                         <div className="text-gray-500">With Data</div>
-                        <div className="font-medium">{stats.sections.filter((s: any) => s.hasData).length}</div>
+                        <div className="font-medium">{safeStats.sections.filter((s) => s.hasData).length}</div>
                       </div>
                       <div>
                         <div className="text-gray-500">Last Updated</div>
                         <div className="font-medium">
-                          {new Date(Math.max(...stats.sections.map((s: any) => new Date(s.lastUpdated).getTime()))).toLocaleDateString()}
+                          {new Date(Math.max(...safeStats.sections.map((s) => new Date(s.lastUpdated).getTime()))).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
@@ -315,7 +326,7 @@ export function UserManager() {
                     <div className="mt-3">
                       <div className="text-xs text-gray-500 mb-1">Data Sections:</div>
                       <div className="flex flex-wrap gap-1">
-                        {stats.sections.map((section: any) => (
+                        {safeStats.sections.map((section) => (
                           <span
                             key={section.name}
                             className={`text-xs px-2 py-1 rounded ${

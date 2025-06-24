@@ -14,15 +14,9 @@ const formatCurrency = (value: number | undefined) => {
   }).format(value || 0)
 }
 
-// Helper to format numbers with signs
-const formatSignedCurrency = (value: number) => {
-  const sign = value >= 0 ? '+' : '-'
-  return `${sign}${formatCurrency(Math.abs(value))}`
-}
-
 export default function Dashboard() {
-  const { getSection, hasData } = useUserData()
-  const [data, setData] = useState<any>({
+  const { getSection } = useUserData()
+  const [data, setData] = useState<Record<string, unknown>>({
     financialHealth: {},
     netWorth: {},
     trueCost: {},
@@ -93,21 +87,28 @@ export default function Dashboard() {
   }
 
   // --- Safe Calculations with default fallbacks ---
-  const assets = data.netWorth.assets || []
-  const liabilities = data.netWorth.liabilities || []
-  const netWorthValue = assets.reduce((sum: number, a: any) => sum + (a.value || 0), 0) - liabilities.reduce((sum: number, l: any) => sum + (l.value || 0), 0)
+  const netWorthData = data.netWorth as { assets?: Array<{ value?: number }>; liabilities?: Array<{ value?: number }> } || {}
+  const financialHealthData = data.financialHealth as { income?: number; expenses?: number } || {}
+  const trueCostData = data.trueCost as { calculations?: unknown[] } || {}
+  const aiInsightsData = data.aiInsights as { insights?: unknown[] } || {}
+  const lifeContextData = data.lifeContext as { goals?: unknown[] } || {}
+  const fuelCostData = data.fuelCost as { gasPrices?: { regular?: number } } || {}
+
+  const assets = netWorthData.assets || []
+  const liabilities = netWorthData.liabilities || []
+  const netWorthValue = assets.reduce((sum: number, a: { value?: number }) => sum + (a.value || 0), 0) - liabilities.reduce((sum: number, l: { value?: number }) => sum + (l.value || 0), 0)
   
-  const income = data.financialHealth.income || 0
-  const expenses = data.financialHealth.expenses || 0
+  const income = financialHealthData.income || 0
+  const expenses = financialHealthData.expenses || 0
   const monthlySavings = income - expenses
   const savingsRate = income > 0 ? (monthlySavings / income) * 100 : 0
   
-  const cashAssets = assets.find((a: any) => a.type === 'cash')?.value || 0
+  const cashAssets = assets.find((a: { value?: number; type?: string }) => a.type === 'cash')?.value || 0
   const emergencyFund = expenses > 0 ? cashAssets / expenses : 0
 
-  const trueCostCalculations = data.trueCost.calculations || []
-  const aiInsightsList = data.aiInsights.insights || []
-  const lifeContextGoals = data.lifeContext.goals || []
+  const trueCostCalculations = trueCostData.calculations || []
+  const aiInsightsList = aiInsightsData.insights || []
+  const lifeContextGoals = lifeContextData.goals || []
 
   return (
     <div className="p-4 lg:p-6 space-y-6">
@@ -134,7 +135,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Fuel Cost</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(data.fuelCost.gasPrices?.regular)}</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(fuelCostData.gasPrices?.regular)}</p>
             </div>
             <Fuel className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
@@ -186,8 +187,8 @@ export default function Dashboard() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Assets vs Debt</p>
                 <p className="text-lg lg:text-xl font-bold text-blue-600 dark:text-blue-400">
-                  {liabilities.reduce((s: number, l:any) => s + l.value, 0) > 0 
-                    ? `${(assets.reduce((s: number, a:any) => s + a.value, 0) / liabilities.reduce((s: number, l:any) => s + l.value, 0)).toFixed(1)}x` 
+                  {liabilities.reduce((s: number, l: { value?: number }) => s + (l.value || 0), 0) > 0 
+                    ? `${(assets.reduce((s: number, a: { value?: number }) => s + (a.value || 0), 0) / liabilities.reduce((s: number, l: { value?: number }) => s + (l.value || 0), 0)).toFixed(1)}x` 
                     : 'N/A'}
                 </p>
               </div>
@@ -199,22 +200,25 @@ export default function Dashboard() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent True Cost Analysis</h3>
             <div className="space-y-3">
               {trueCostCalculations.length > 0 ? (
-                trueCostCalculations.slice(0, 2).map((calc: any) => (
-                  <div key={calc.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{calc.name || 'Untitled Calculation'}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Sticker: {formatCurrency(calc.stickerPrice)}</p>
+                trueCostCalculations.slice(0, 2).map((calc: unknown) => {
+                  const calcData = calc as { id?: string; name?: string; stickerPrice?: number; trueCost?: number }
+                  return (
+                    <div key={calcData.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{calcData.name || 'Untitled Calculation'}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Sticker: {formatCurrency(calcData.stickerPrice)}</p>
+                      </div>
+                      <div className="sm:text-right mt-2 sm:mt-0">
+                        <p className="font-bold text-red-600 dark:text-red-400">True Cost: {formatCurrency(calcData.trueCost)}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {calcData.stickerPrice && calcData.stickerPrice > 0 
+                            ? `+${(((calcData.trueCost || 0) - calcData.stickerPrice) / calcData.stickerPrice * 100).toFixed(1)}% hidden costs`
+                            : 'Invalid sticker price'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="sm:text-right mt-2 sm:mt-0">
-                      <p className="font-bold text-red-600 dark:text-red-400">True Cost: {formatCurrency(calc.trueCost)}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {calc.stickerPrice > 0 
-                          ? `+${(((calc.trueCost - calc.stickerPrice) / calc.stickerPrice) * 100).toFixed(1)}% hidden costs`
-                          : 'Invalid sticker price'}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                  )
+                })
               ) : (
                 <p className="text-gray-500 dark:text-gray-400 text-center py-4">No True Cost analyses performed yet.</p>
               )}
@@ -274,11 +278,16 @@ export default function Dashboard() {
             </h3>
             <div className="space-y-3">
               {aiInsightsList.length > 0 ? (
-                aiInsightsList.slice(0, 3).map((insight: any, index: number) => (
-                  <div key={index} className="p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
-                    <p className="text-sm text-blue-900 dark:text-blue-200">{insight.message || insight}</p>
-                  </div>
-                ))
+                aiInsightsList.slice(0, 3).map((insight: unknown, index: number) => {
+                  const insightData = insight as { message?: string } | string
+                  return (
+                    <div key={index} className="p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+                      <p className="text-sm text-blue-900 dark:text-blue-200">
+                        {typeof insightData === 'object' && insightData !== null ? insightData.message || 'Unknown insight' : insightData}
+                      </p>
+                    </div>
+                  )
+                })
               ) : (
                 <p className="text-gray-500 dark:text-gray-400 text-center py-4">No AI insights available yet.</p>
               )}
@@ -290,12 +299,17 @@ export default function Dashboard() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Life Context Goals</h3>
             <div className="space-y-2">
               {lifeContextGoals.length > 0 ? (
-                lifeContextGoals.slice(0, 3).map((goal: any, index: number) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-aegis-600 rounded-full"></div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{goal.name || goal}</span>
-                  </div>
-                ))
+                lifeContextGoals.slice(0, 3).map((goal: unknown, index: number) => {
+                  const goalData = goal as { name?: string } | string
+                  return (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-aegis-600 rounded-full"></div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {typeof goalData === 'object' && goalData !== null ? goalData.name || 'Unknown goal' : goalData}
+                      </span>
+                    </div>
+                  )
+                })
               ) : (
                 <p className="text-gray-500 dark:text-gray-400 text-center py-4">No goals set yet.</p>
               )}

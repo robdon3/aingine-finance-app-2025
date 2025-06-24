@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Fuel, MapPin, Calculator, TrendingUp, TrendingDown, RefreshCw, ExternalLink, Car, Route } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Fuel, MapPin, Calculator, TrendingUp, TrendingDown, RefreshCw, ExternalLink, Route } from 'lucide-react'
 import GasPriceService, { type GasPriceData, type StateGasPrice } from './GasPriceService'
-import { getLocationByCode } from '../data/locations'
 
 interface TripCalculation {
   id: string
@@ -35,11 +34,7 @@ export default function FuelCostManager() {
   
   const gasPriceService = GasPriceService.getInstance()
 
-  useEffect(() => {
-    loadGasPrices()
-  }, [])
-
-  const loadGasPrices = async (isRefresh = false) => {
+  const loadGasPrices = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
       setIsRefreshing(true)
       // Clear cache to force fresh data
@@ -71,7 +66,11 @@ export default function FuelCostManager() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [gasPriceService])
+
+  useEffect(() => {
+    loadGasPrices()
+  }, [loadGasPrices])
 
   const calculateTripCost = () => {
     console.log('Calculating trip cost...')
@@ -422,7 +421,7 @@ export default function FuelCostManager() {
                 </label>
                 <select
                   value={fuelType}
-                  onChange={(e) => setFuelType(e.target.value as any)}
+                  onChange={(e) => setFuelType(e.target.value as 'regular' | 'midgrade' | 'premium' | 'diesel')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
                 >
                   <option value="regular">Regular</option>

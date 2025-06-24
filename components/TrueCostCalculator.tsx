@@ -1,9 +1,34 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Calculator, Car, Home, DollarSign, TrendingUp, AlertTriangle, ExternalLink, RefreshCw } from 'lucide-react'
-import { US_LOCATIONS, getLocationByCode, getDefaultLocation, type Location } from '../data/locations'
-import GasPriceService, { type GasPriceData } from './GasPriceService'
+import { getLocationByCode, getDefaultLocation } from '../data/locations'
+import GasPriceService from './GasPriceService'
+
+interface GasPriceData {
+  regular: number
+  premium: number
+  location: string
+  gasTax: number
+  source: string
+}
+
+interface InflationData {
+  currentRate: number
+}
+
+interface InterestRateData {
+  federalFundsRate: number
+  savingsRate: number
+}
+
+interface DataSource {
+  id: string
+  name: string
+  url: string
+  data: GasPriceData | InflationData | InterestRateData | unknown
+  lastUpdated: string
+}
 
 interface TrueCostCalculation {
   item: string
@@ -22,14 +47,6 @@ interface TrueCostCalculation {
   sources: string[]
   calculationDate: string
   location: string
-}
-
-interface DataSource {
-  id: string
-  name: string
-  url: string
-  data: any
-  lastUpdated: string
 }
 
 interface TaxPolicyData {
@@ -58,36 +75,8 @@ export default function TrueCostCalculator() {
   const [insuranceCost, setInsuranceCost] = useState('')
   const [maintenanceCost, setMaintenanceCost] = useState('')
 
-  // Load data sources on component mount
-  useEffect(() => {
-    loadDataSources()
-  }, [])
-
-  const getCurrentTaxRates = (locationCode: string): TaxPolicyData => {
-    // First try to get updated tax policies from localStorage
-    const savedPolicies = localStorage.getItem('aegis_tax_policies')
-    if (savedPolicies) {
-      const policies: TaxPolicyData[] = JSON.parse(savedPolicies)
-      const currentPolicy = policies.find(p => p.locationCode === locationCode)
-      if (currentPolicy) {
-        return currentPolicy
-      }
-    }
-
-    // Fall back to static data if no updated policies found
-    const location = getLocationByCode(locationCode) || getDefaultLocation()
-    return {
-      locationCode: location.code,
-      gasTax: location.gasTax,
-      salesTax: location.salesTax,
-      incomeTax: location.incomeTax,
-      propertyTax: location.propertyTax,
-      lastUpdated: new Date().toISOString(),
-      source: 'Static data'
-    }
-  }
-
-  const loadDataSources = async () => {
+  // Move loadDataSources above useEffect
+  const loadDataSources = useCallback(async () => {
     setIsLoadingData(true)
     
     // Get user's selected location
@@ -113,7 +102,7 @@ export default function TrueCostCalculator() {
             premium: stateGasPrices?.premium || gasPrices.premium,
             location: selectedLocation.name,
             gasTax: currentTaxRates.gasTax,
-            source: gasPrices.source
+            source: (gasPrices && 'source' in gasPrices) ? gasPrices.source : 'Unknown'
           },
           lastUpdated: gasPrices.lastUpdated
         },
@@ -170,6 +159,34 @@ export default function TrueCostCalculator() {
     }
     
     setIsLoadingData(false)
+  }, [gasPriceService])
+
+  useEffect(() => {
+    loadDataSources()
+  }, [loadDataSources])
+
+  const getCurrentTaxRates = (locationCode: string): TaxPolicyData => {
+    // First try to get updated tax policies from localStorage
+    const savedPolicies = localStorage.getItem('aegis_tax_policies')
+    if (savedPolicies) {
+      const policies: TaxPolicyData[] = JSON.parse(savedPolicies)
+      const currentPolicy = policies.find(p => p.locationCode === locationCode)
+      if (currentPolicy) {
+        return currentPolicy
+      }
+    }
+
+    // Fall back to static data if no updated policies found
+    const location = getLocationByCode(locationCode) || getDefaultLocation()
+    return {
+      locationCode: location.code,
+      gasTax: location.gasTax,
+      salesTax: location.salesTax,
+      incomeTax: location.incomeTax,
+      propertyTax: location.propertyTax,
+      lastUpdated: new Date().toISOString(),
+      source: 'Static data'
+    }
   }
 
   const calculateTrueCost = () => {
@@ -188,9 +205,12 @@ export default function TrueCostCalculator() {
     const currentTaxRates = getCurrentTaxRates(selectedLocationCode)
 
     // Get real data from sources
-    const gasPrice = dataSources.find(s => s.id === 'gas-prices')?.data?.regular || 3.205
-    const inflationRate = dataSources.find(s => s.id === 'inflation')?.data?.currentRate || 3.0
-    const interestRate = dataSources.find(s => s.id === 'interest-rates')?.data?.savingsRate || 4.0
+    const gasPriceSource = dataSources.find(s => s.id === 'gas-prices')?.data
+    const gasPrice = (isObject(gasPriceSource) && 'regular' in gasPriceSource) ? (gasPriceSource as GasPriceData).regular : 3.205
+    const inflationSource = dataSources.find(s => s.id === 'inflation')?.data
+    const inflationRate = (isObject(inflationSource) && 'currentRate' in inflationSource) ? (inflationSource as InflationData).currentRate : 3.0
+    const interestSource = dataSources.find(s => s.id === 'interest-rates')?.data
+    const interestRate = (isObject(interestSource) && 'savingsRate' in interestSource) ? (interestSource as InterestRateData).savingsRate : 4.0
 
     // Calculate breakdown with current tax rates
     const fuelCost = efficiency > 0 ? (usage / efficiency) * gasPrice * years : 0
@@ -216,7 +236,7 @@ export default function TrueCostCalculator() {
         other: 0
       },
       sources: [
-        `AAA Gas Prices - $${gasPrice}/gal (${dataSources.find(s => s.id === 'gas-prices')?.data?.source || 'AAA'})`,
+        `AAA Gas Prices - $${isObject(dataSources.find(s => s.id === 'gas-prices')?.data) && 'regular' in (dataSources.find(s => s.id === 'gas-prices')?.data as object) ? (dataSources.find(s => s.id === 'gas-prices')?.data as GasPriceData).regular : 3.205}/gal (${isObject(dataSources.find(s => s.id === 'gas-prices')?.data) && 'source' in (dataSources.find(s => s.id === 'gas-prices')?.data as object) ? (dataSources.find(s => s.id === 'gas-prices')?.data as GasPriceData).source : 'AAA'})`,
         'Bureau of Labor Statistics - Inflation rate',
         'Federal Reserve Economic Data - Interest rates',
         `${currentTaxRates.source} - Tax rates (${currentTaxRates.lastUpdated ? 'Updated: ' + new Date(currentTaxRates.lastUpdated).toLocaleDateString() : 'Current'})`
@@ -271,6 +291,9 @@ export default function TrueCostCalculator() {
     }).format(amount)
   }
 
+  // Add type guards for 'in' operator
+  const isObject = (val: unknown): val is object => typeof val === 'object' && val !== null
+
   return (
     <div className="p-4 lg:p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -303,9 +326,9 @@ export default function TrueCostCalculator() {
               <div>
                 <div className="font-medium text-sm text-gray-900">{source.name}</div>
                 <div className="text-xs text-gray-600">
-                  {source.id === 'gas-prices' && `$${source.data?.regular}/gal`}
-                  {source.id === 'inflation' && `${source.data?.currentRate}%`}
-                  {source.id === 'interest-rates' && `${source.data?.savingsRate}%`}
+                  {source.id === 'gas-prices' && (isObject(source.data) && 'regular' in source.data ? `$${(source.data as GasPriceData).regular}/gal` : '')}
+                  {source.id === 'inflation' && (isObject(source.data) && 'currentRate' in source.data ? `${(source.data as InflationData).currentRate}%` : '')}
+                  {source.id === 'interest-rates' && (isObject(source.data) && 'savingsRate' in source.data ? `${(source.data as InterestRateData).savingsRate}%` : '')}
                 </div>
               </div>
               <a
@@ -321,7 +344,7 @@ export default function TrueCostCalculator() {
         </div>
         
         <div className="mt-3 text-xs text-gray-600">
-          Data sources are used for accurate calculations. Click "Update Data" to refresh.
+          Data sources are used for accurate calculations. Click &quot;Update Data&quot; to refresh.
         </div>
       </div>
 
@@ -353,7 +376,7 @@ export default function TrueCostCalculator() {
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as any)}
+                onChange={(e) => setCategory(e.target.value as 'vehicle' | 'home' | 'appliance' | 'service' | 'other')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent"
               >
                 <option value="vehicle">Vehicle</option>

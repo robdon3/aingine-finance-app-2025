@@ -25,7 +25,6 @@ export default function AIPersonalization() {
   const [insights, setInsights] = useState<Insight[]>([])
   const [userPatterns, setUserPatterns] = useState<UserPattern[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [privacyLevel, setPrivacyLevel] = useState('high')
 
   // Simulate AI analysis
   const generateInsights = () => {

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { ExternalLink, RefreshCw, AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { ExternalLink, RefreshCw, AlertTriangle, CheckCircle, Clock } from 'lucide-react'
 import GasPriceService, { type GasPriceData } from './GasPriceService'
 
 interface DataSource {
@@ -11,7 +11,7 @@ interface DataSource {
   url: string
   lastUpdated: string
   status: 'active' | 'error' | 'loading'
-  data: any
+  data: GasPriceData | InflationData | InterestRateData | { sp500: number } | { bitcoin: number } | null
   description: string
 }
 
@@ -36,7 +36,55 @@ export default function DataSources() {
   const [lastRefresh, setLastRefresh] = useState<string>('')
   const gasPriceService = GasPriceService.getInstance()
 
-  // Initialize data sources
+  const refreshAllData = useCallback(async () => {
+    setIsLoading(true)
+    
+    const fetchGasPrices = async (): Promise<GasPriceData> => {
+      // Use the real GasPriceService to fetch actual AAA data
+      return await gasPriceService.getNationalAverage()
+    }
+    
+    const fetchDataSourceData = async (sourceId: string) => {
+      const source = dataSources.find(s => s.id === sourceId)
+      if (!source) return
+      
+      try {
+        source.status = 'loading'
+        setDataSources([...dataSources])
+        
+        switch (sourceId) {
+          case 'gas-prices':
+            source.data = await fetchGasPrices()
+            break
+          case 'inflation':
+            source.data = await fetchInflationData()
+            break
+          case 'interest-rates':
+            source.data = await fetchInterestRates()
+            break
+          case 'stock-prices':
+            source.data = await fetchStockPrices()
+            break
+          case 'crypto-prices':
+            source.data = await fetchCryptoPrices()
+            break
+          default:
+            throw new Error(`Unknown data source: ${sourceId}`)
+        }
+        
+        source.status = 'active'
+        source.lastUpdated = new Date().toLocaleString()
+      } catch (error) {
+        console.error(`Error fetching ${sourceId}:`, error)
+        source.status = 'error'
+      }
+    }
+    
+    await Promise.all(dataSources.map((source) => fetchDataSourceData(source.id)))
+    setLastRefresh(new Date().toLocaleString())
+    setIsLoading(false)
+  }, [dataSources, gasPriceService])
+
   useEffect(() => {
     const sources: DataSource[] = [
       {
@@ -92,60 +140,7 @@ export default function DataSources() {
     ]
     setDataSources(sources)
     refreshAllData()
-  }, [])
-
-  const refreshAllData = async () => {
-    setIsLoading(true)
-    setLastRefresh('')
-    
-    const updatedSources = await Promise.all(
-      dataSources.map(async (source) => {
-        try {
-          source.status = 'loading'
-          const data = await fetchDataSourceData(source.id)
-          return {
-            ...source,
-            data,
-            status: 'active' as const,
-            lastUpdated: new Date().toISOString()
-          }
-        } catch (error) {
-          console.error(`Error fetching data for ${source.id}:`, error)
-          return {
-            ...source,
-            status: 'error' as const,
-            lastUpdated: new Date().toISOString()
-          }
-        }
-      })
-    )
-    
-    setDataSources(updatedSources)
-    setLastRefresh(new Date().toLocaleString())
-    setIsLoading(false)
-  }
-
-  const fetchDataSourceData = async (sourceId: string) => {
-    switch (sourceId) {
-      case 'gas-prices':
-        return await fetchGasPrices()
-      case 'inflation':
-        return await fetchInflationData()
-      case 'interest-rates':
-        return await fetchInterestRates()
-      case 'stock-prices':
-        return await fetchStockPrices()
-      case 'crypto-prices':
-        return await fetchCryptoPrices()
-      default:
-        throw new Error(`Unknown data source: ${sourceId}`)
-    }
-  }
-
-  const fetchGasPrices = async (): Promise<GasPriceData> => {
-    // Use the real GasPriceService to fetch actual AAA data
-    return await gasPriceService.getNationalAverage()
-  }
+  }, [refreshAllData])
 
   const fetchInflationData = async (): Promise<InflationData> => {
     // Simulate API call to BLS
@@ -208,7 +203,7 @@ export default function DataSources() {
     }
   }
 
-  const formatDataDisplay = (source: DataSource) => {
+  const formatDataDisplay = (source: DataSource): string => {
     if (!source.data) return 'No data available'
 
     switch (source.id) {
@@ -225,11 +220,11 @@ export default function DataSources() {
         return `30Yr Mortgage: ${rates.mortgageRate30Yr}% | Fed Rate: ${rates.federalFundsRate}%`
       
       case 'stock-prices':
-        const stocks = source.data as any
+        const stocks = source.data as { sp500: number }
         return `S&P 500: $${stocks.sp500.toLocaleString()}`
       
       case 'crypto-prices':
-        const crypto = source.data as any
+        const crypto = source.data as { bitcoin: number }
         return `Bitcoin: $${crypto.bitcoin.toLocaleString()}`
       
       default:
@@ -286,12 +281,17 @@ export default function DataSources() {
             <div className="bg-gray-50 rounded-lg p-3 mb-3">
               <div className="text-sm font-medium text-gray-900 mb-1">Current Data:</div>
               <div className="text-sm text-gray-700">
-                {formatDataDisplay(source)}
+                {formatDataDisplay(source) as string}
               </div>
-              {source.id === 'gas-prices' && source.data && (
-                <div className="mt-2 text-xs text-gray-600">
-                  Source: {(source.data as GasPriceData).source}
-                </div>
+              {source.id === 'gas-prices' &&
+                source.data &&
+                typeof source.data === 'object' &&
+                source.data !== null &&
+                'source' in source.data &&
+                typeof (source.data as { source?: string }).source === 'string' && (
+                  <div className="mt-2 text-xs text-gray-600">
+                    Source: {(source.data as { source: string }).source}
+                  </div>
               )}
             </div>
 
@@ -317,7 +317,7 @@ export default function DataSources() {
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Gas Prices</h4>
             <p className="text-gray-600">
-              National average gas prices from AAA's daily fuel gauge report. 
+              National average gas prices from AAA&apos;s daily fuel gauge report. 
               Data is updated daily and includes regular, midgrade, premium, and diesel prices by state and national average.
               Current national average: $3.205 (as of 6/19/25).
             </p>

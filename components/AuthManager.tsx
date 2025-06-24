@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, createContext, useContext } from 'react'
-import { User, Users, Lock, Shield, Database, Smartphone, Globe, Key, LogOut, Plus, Settings, Download, Upload, Trash2, Eye, EyeOff } from 'lucide-react'
+import React, { useState, createContext, useContext } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { storageManager } from '../lib/storageManager'
+import { Shield, Database, Globe } from 'lucide-react'
 
 // Types
 export interface UserAccount {
@@ -34,13 +34,13 @@ interface AuthContextType {
   logout: () => void
   switchUser: (userId: string) => Promise<void>
   updateUser: (updates: Partial<UserAccount>) => Promise<void>
-  exportUserData: (userId: string) => Promise<any>
-  importUserData: (data: any) => Promise<boolean>
+  exportUserData: (userId: string) => Promise<unknown>
+  importUserData: (data: unknown) => Promise<boolean>
   deleteUser: (userId: string) => Promise<void>
   clearUserData: (userId: string) => Promise<void>
-  getUserData: (userId: string) => Promise<any>
-  updateUserDataSection: (userId: string, section: string, data: any) => Promise<any>
-  migrateLegacyData: (userId: string) => boolean
+  getUserData: (userId: string) => Promise<unknown>
+  updateUserDataSection: (userId: string, section: string, data: unknown) => Promise<unknown>
+  migrateLegacyData: () => boolean
 }
 
 // Create Auth Context
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const dataManager = {
     get: (userId: string) => storageManager.getUserData(userId, currentUser?.preferences.storagePreference || 'local'),
-    set: (userId: string, data: any) => storageManager.setUserData(userId, data, currentUser?.preferences.storagePreference || 'local'),
+    set: (userId: string, data: unknown) => storageManager.setUserData(userId, data, currentUser?.preferences.storagePreference || 'local'),
     remove: (userId: string) => storageManager.removeUserData(userId, currentUser?.preferences.storagePreference || 'local'),
     getUsers: () => storageManager.getUsers(),
     setUsers: (users: UserAccount[]) => storageManager.setUsers(users),
@@ -87,23 +87,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { user, data: userData, exportDate: new Date().toISOString(), version: '1.1' };
   };
 
-  const importUserData = async (data: any): Promise<boolean> => {
+  const importUserData = async (data: unknown): Promise<boolean> => {
     try {
-      if (!data.user || !data.data) return false;
-      const users = await dataManager.getUsers();
-      const existingUser = users.find((u) => u.id === data.user.id);
-      if (!existingUser) {
-        await dataManager.setUsers([...users, data.user]);
+      if (
+        typeof data === 'object' &&
+        data !== null &&
+        'user' in data &&
+        'data' in data
+      ) {
+        const user = (data as { user: unknown }).user;
+        const userData = (data as { data: unknown }).data;
+        // Type guard for user
+        if (
+          typeof user === 'object' &&
+          user !== null &&
+          'id' in user &&
+          typeof (user as { id: unknown }).id === 'string'
+        ) {
+          const users = await dataManager.getUsers();
+          const existingUser = users.find((u) => u.id === (user as { id: string }).id);
+          if (!existingUser) {
+            await dataManager.setUsers([...users, user as UserAccount]);
+          }
+          await dataManager.set((user as { id: string }).id, userData);
+          return true;
+        }
       }
-      await dataManager.set(data.user.id, data.data);
-      return true;
+      return false;
     } catch (error) {
       console.error('Error importing user data:', error);
       return false;
     }
   };
   
-  const migrateLegacyData = (userId: string) => { return true; };
+  const migrateLegacyData = () => { return true; };
 
   const login = async (username: string, password: string): Promise<boolean> => {
     const users = await dataManager.getUsers();
@@ -115,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
         const updatedUsers = users.map((u) => u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u);
         await dataManager.setUsers(updatedUsers);
-        migrateLegacyData(user.id);
+        migrateLegacyData();
         return true;
       }
     }
@@ -196,14 +213,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data || DEFAULT_USER_DATA;
   };
 
-  const updateUserDataSection = async (userId: string, section: string, data: any) => {
+  const updateUserDataSection = async (userId: string, section: string, data: unknown) => {
     const allData = await getUserData(userId);
-    const updatedData = {
-      ...allData,
-      [section]: { ...(allData[section] || {}), ...data, lastUpdated: new Date().toISOString() },
-    };
-    await dataManager.set(userId, updatedData);
-    return updatedData;
+    if (typeof allData === 'object' && allData !== null) {
+      const updatedData = {
+        ...(allData as object),
+        [section]: data,
+        lastUpdated: new Date().toISOString(),
+      };
+      await dataManager.set(userId, updatedData);
+      return updatedData;
+    }
+    return allData;
   };
 
   const value: AuthContextType = {

@@ -1,16 +1,17 @@
 export interface CensusData {
-  state: string
-  stateCode: string
+  state?: string
+  stateCode?: string
+  name: string
   population?: number
   medianIncome?: number
   povertyRate?: number
   housingUnits?: number
-  lastUpdated: string
-  source: string
+  lastUpdated?: string
+  source?: string
 }
 
 // Public Census data from 2020 Census and other public sources
-const publicCensusData: Record<string, any> = {
+const publicCensusData: Record<string, CensusData> = {
   'AL': { 
     population: 5024279, 
     name: 'Alabama',
@@ -403,6 +404,7 @@ export class CensusAPIService {
     const censusData: CensusData = {
       state: stateData.name,
       stateCode: stateCode.toUpperCase(),
+      name: stateData.name,
       population: stateData.population,
       medianIncome: stateData.medianIncome,
       povertyRate: stateData.povertyRate,
@@ -439,7 +441,7 @@ export class CensusAPIService {
     const now = Date.now()
     let expired = 0
     
-    Array.from(this.cache.entries()).forEach(([_, entry]) => {
+    Array.from(this.cache.entries()).forEach(([, entry]) => {
       if (now - entry.timestamp > this.CACHE_DURATION) {
         expired++
       }
@@ -457,5 +459,10 @@ export class CensusAPIService {
       requestsThisMinute: 0,
       limit: 0 // No rate limits for public data
     }
+  }
+
+  async fetchData(): Promise<null> {
+    // Implementation of fetchData method
+    return null;
   }
 } 
