@@ -15,6 +15,7 @@ export interface UserAccount {
   isActive: boolean
   preferences: UserPreferences
   dataVersion: string
+  passwordHash?: string // Add password hash for security
 }
 
 interface UserPreferences {
@@ -30,7 +31,7 @@ interface AuthContextType {
   currentUser: UserAccount | null
   isAuthenticated: boolean
   login: (username: string, password: string) => Promise<boolean>
-  register: (username: string, email: string, password: string, storagePreference?: 'local' | 'cloud') => Promise<boolean>
+  register: (username: string, email: string, password: string, storagePreference?: 'local' | 'cloud') => Promise<{ success: boolean; error?: string }>
   logout: () => void
   switchUser: (userId: string) => Promise<void>
   updateUser: (updates: Partial<UserAccount>) => Promise<void>
@@ -64,6 +65,44 @@ const DEFAULT_USER_DATA = {
   aiInsights: { insights: [], preferences: {}, lastUpdated: new Date().toISOString() },
   dataSources: { fredApiKey: '', censusApiKey: '', lastUpdated: new Date().toISOString() },
   taxData: { policies: {}, calculations: [], lastUpdated: new Date().toISOString() }
+}
+
+// Simple password hashing function (in production, use bcrypt or similar)
+const hashPassword = async (password: string): Promise<string> => {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
+  const passwordHash = await hashPassword(password)
+  return passwordHash === hash
+}
+
+// Password validation
+const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+  
+  if (password.length < 6) {
+    errors.push('Password must be at least 6 characters long')
+  }
+  
+  if (password.length > 128) {
+    errors.push('Password must be less than 128 characters')
+  }
+  
+  // Check for common weak passwords
+  const weakPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein']
+  if (weakPasswords.includes(password.toLowerCase())) {
+    errors.push('Please choose a stronger password')
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
 }
 
 // Auth Provider Component
@@ -123,50 +162,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const migrateLegacyData = () => { return true; };
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    const users = await dataManager.getUsers();
-    const user = users.find(u => u.username === username);
-    if (user) {
-      if (password === 'password') { // Demo password
-        setCurrentUser(user);
-        setIsAuthenticated(true);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
-        const updatedUsers = users.map((u) => u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u);
-        await dataManager.setUsers(updatedUsers);
-        migrateLegacyData();
-        return true;
+    try {
+      const users = await dataManager.getUsers();
+      const user = users.find(u => u.username === username);
+      
+      if (user && user.passwordHash) {
+        const isValidPassword = await verifyPassword(password, user.passwordHash);
+        
+        if (isValidPassword) {
+          setCurrentUser(user);
+          setIsAuthenticated(true);
+          localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
+          const updatedUsers = users.map((u) => u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u);
+          await dataManager.setUsers(updatedUsers);
+          migrateLegacyData();
+          return true;
+        }
       }
+      return false;
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return false;
     }
-    return false;
   };
 
-  const register = async (username: string, email: string, password: string, storagePreference: 'local' | 'cloud' = 'cloud'): Promise<boolean> => {
-    const users = await dataManager.getUsers();
-    if (users.find(u => u.username === username)) return false;
+  const register = async (username: string, email: string, password: string, storagePreference: 'local' | 'cloud' = 'cloud'): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Validate password
+      const passwordValidation = validatePassword(password)
+      if (!passwordValidation.isValid) {
+        return { 
+          success: false, 
+          error: passwordValidation.errors.join(', ') 
+        }
+      }
 
-    const newUser: UserAccount = {
-      id: uuidv4(),
-      username,
-      email,
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString(),
-      isActive: true,
-      preferences: {
-        theme: 'auto',
-        currency: 'USD',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        notifications: true,
-        privacyLevel: storagePreference,
-        storagePreference: storagePreference,
-      },
-      dataVersion: '1.1'
-    };
-    const updatedUsers = [...users, newUser];
-    await dataManager.setUsers(updatedUsers);
-    await dataManager.set(newUser.id, DEFAULT_USER_DATA);
-    setCurrentUser(newUser);
-    setIsAuthenticated(true);
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, newUser.id);
-    return true;
+      const users = await dataManager.getUsers();
+      if (users.find(u => u.username === username)) {
+        return { 
+          success: false, 
+          error: 'Username already exists' 
+        }
+      }
+
+      // Hash the password
+      const passwordHash = await hashPassword(password);
+
+      const newUser: UserAccount = {
+        id: uuidv4(),
+        username,
+        email,
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+        passwordHash, // Store the hashed password
+        preferences: {
+          theme: 'auto',
+          currency: 'USD',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          notifications: true,
+          privacyLevel: storagePreference,
+          storagePreference: storagePreference,
+        },
+        dataVersion: '1.1'
+      };
+      
+      const updatedUsers = [...users, newUser];
+      await dataManager.setUsers(updatedUsers);
+      await dataManager.set(newUser.id, DEFAULT_USER_DATA);
+      setCurrentUser(newUser);
+      setIsAuthenticated(true);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, newUser.id);
+      return { success: true };
+    } catch (error) {
+      console.error('Registration error:', error);
+      return { 
+        success: false, 
+        error: 'An error occurred during registration' 
+      }
+    }
   };
 
   const logout = () => {
@@ -265,20 +339,30 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [storagePreference, setStoragePreference] = useState<'local' | 'cloud'>('cloud');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     
-    let success = false;
-    if (isRegister) {
-      success = await register(username, email, password, storagePreference);
-    } else {
-      success = await login(username, password);
-    }
-    
-    if (!success) {
-      setError(isRegister ? 'Registration failed. Username may already exist.' : 'Login failed. Check username and password.');
+    try {
+      if (isRegister) {
+        const result = await register(username, email, password, storagePreference);
+        if (!result.success) {
+          setError(result.error || 'Registration failed');
+        }
+      } else {
+        const success = await login(username, password);
+        if (!success) {
+          setError('Login failed. Check username and password.');
+        }
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -305,7 +389,8 @@ export function LoginForm() {
               onChange={(e) => setUsername(e.target.value)} 
               placeholder="Enter username" 
               required 
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
             />
           </div>
           
@@ -320,7 +405,8 @@ export function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)} 
                 placeholder="Enter email" 
                 required 
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
               />
             </div>
           )}
@@ -335,10 +421,13 @@ export function LoginForm() {
               onChange={(e) => setPassword(e.target.value)} 
               placeholder="Enter password" 
               required 
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-aegis-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
             />
-            {!isRegister && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Demo password: password</p>
+            {isRegister && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Password must be at least 6 characters long
+              </p>
             )}
           </div>
 
@@ -351,11 +440,12 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setStoragePreference('local')}
+                  disabled={isLoading}
                   className={`p-4 border rounded-lg text-left transition-colors ${
                     storagePreference === 'local'
                       ? 'border-aegis-500 bg-aegis-50 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
                       : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
-                  }`}
+                  } disabled:opacity-50`}
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <Database className="h-4 w-4" />
@@ -369,11 +459,12 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setStoragePreference('cloud')}
+                  disabled={isLoading}
                   className={`p-4 border rounded-lg text-left transition-colors ${
                     storagePreference === 'cloud'
                       ? 'border-aegis-500 bg-aegis-50 dark:bg-aegis-900 text-aegis-700 dark:text-aegis-300'
                       : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
-                  }`}
+                  } disabled:opacity-50`}
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <Globe className="h-4 w-4" />
@@ -395,9 +486,10 @@ export function LoginForm() {
           
           <button 
             type="submit" 
-            className="w-full bg-aegis-600 hover:bg-aegis-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+            disabled={isLoading}
+            className="w-full bg-aegis-600 hover:bg-aegis-700 disabled:bg-aegis-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:cursor-not-allowed"
           >
-            {isRegister ? 'Create Account' : 'Sign In'}
+            {isLoading ? 'Processing...' : (isRegister ? 'Create Account' : 'Sign In')}
           </button>
         </form>
         
@@ -408,7 +500,8 @@ export function LoginForm() {
               setError('');
               setStoragePreference('cloud');
             }} 
-            className="text-sm text-aegis-600 dark:text-aegis-400 hover:text-aegis-700 dark:hover:text-aegis-300 hover:underline"
+            disabled={isLoading}
+            className="text-sm text-aegis-600 dark:text-aegis-400 hover:text-aegis-700 dark:hover:text-aegis-300 hover:underline disabled:opacity-50"
           >
             {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register"}
           </button>
