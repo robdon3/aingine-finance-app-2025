@@ -119,6 +119,34 @@ npm run dev
 
 Visit `http://localhost:3000` to explore the engine.
 
+## Environment Setup
+
+### Required Environment Variables
+
+Create a `.env.local` file in the project root with the following variables:
+
+```bash
+# FRED API Configuration (Required for economic data)
+# Get your free API key from: https://fred.stlouisfed.org/docs/api/api_key.html
+FRED_API_KEY=your_fred_api_key_here
+
+# Upstash Redis Configuration (Optional - for cloud storage features)
+# Get your Redis credentials from: https://upstash.com/
+UPSTASH_REDIS_REST_URL=https://your-redis-url.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your_redis_token_here
+```
+
+### Setup Steps
+
+1. **Copy the example file**: `cp env.example .env.local`
+2. **Get a FRED API key**: Visit [FRED API](https://fred.stlouisfed.org/docs/api/api_key.html) for free access
+3. **Optional Redis setup**: Visit [Upstash](https://upstash.com/) for free Redis hosting
+4. **Fill in your values**: Replace the placeholder values in `.env.local`
+
+### Note on Redis
+
+Redis is optional and only used for cloud storage features. The application will work without Redis, but some features like user data persistence across devices will be limited to local storage.
+
 ## The Aegis Manifesto
 
 We believe in the power of individual agency. We believe that when people have the right tools and understanding, they can make decisions that compound in their favor over time. We believe that technology should serve human flourishing, not extract value from human attention.

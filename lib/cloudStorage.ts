@@ -3,11 +3,17 @@ import { Redis } from '@upstash/redis'
 // Initialize Redis from environment variables with fallback
 let redis: Redis | null = null
 
-try {
-  redis = Redis.fromEnv()
-} catch (error) {
-  console.warn('Failed to initialize Redis from environment variables:', error)
-  console.warn('Cloud storage will be disabled. Check your UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.')
+// Only try to initialize Redis on the server side
+if (typeof window === 'undefined') {
+  try {
+    redis = Redis.fromEnv()
+  } catch (error) {
+    console.warn('Failed to initialize Redis from environment variables:', error)
+    console.warn('Cloud storage will be disabled. Check your UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.')
+  }
+} else {
+  // Client-side: Redis will be null, functions will use API endpoints instead
+  console.log('Cloud storage: Client-side mode - using API endpoints for Redis operations')
 }
 
 const USER_DATA_PREFIX = 'aegis_user_data:'
